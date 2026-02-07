@@ -1,0 +1,17 @@
+{
+  "name": "claude-code-flow",
+  "owner": {
+    "name": "Salim Hamed"
+  },
+  "metadata": {
+    "description": "Developer workflow utilities to keep in the flow"
+  },
+  "plugins": [
+    {
+      "name": "flow",
+      "description": "Developer workflow utilities to keep in the flow",
+      "source": "./",
+      "category": "development"
+    }
+  ]
+}
