@@ -1,0 +1,17 @@
+{
+  "name": "claude-code-flow",
+  "owner": {
+    "name": "Salim"
+  },
+  "metadata": {
+    "description": "Developer workflow utilities — PRs and worktrees"
+  },
+  "plugins": [
+    {
+      "name": "flow",
+      "description": "Developer workflow utilities — PRs and worktrees",
+      "source": "./",
+      "category": "development"
+    }
+  ]
+}

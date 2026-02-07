@@ -1,0 +1,11 @@
+{
+  "name": "flow",
+  "description": "Developer workflow utilities — PRs and worktrees",
+  "version": "0.1.0",
+  "author": {
+    "name": "Salim"
+  },
+  "repository": "https://github.com/salimhamed/claude-code-flow",
+  "license": "MIT",
+  "keywords": ["git", "workflow", "pr", "worktree"]
+}
