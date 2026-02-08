@@ -67,4 +67,4 @@ python scripts/create_pr.py --title "Add feature X" --body "## Summary\n- Add ..
 
 - Not authenticated: `gh auth login` required
 - No commits: Create commits first
-- PR exists: Use `/pr-title` or `/pr-desc` instead
+- PR exists: Use `/flow:pr-title` or `/flow:pr-desc` instead

@@ -1,5 +1,4 @@
 ---
-name: create-git-worktree
 description:
   Use when starting feature work that needs isolation from current workspace or
   before executing implementation plans - creates an isolated git worktree with

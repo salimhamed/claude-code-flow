@@ -1,5 +1,4 @@
 ---
-name: pr-desc
 description: Update PR description from current branch context
 disable-model-invocation: true
 allowed-tools:
@@ -17,7 +16,7 @@ allowed-tools:
 This skill accepts an optional argument with additional instructions for the
 description.
 
-**Example:** `/pr-desc include a ## Usage section showing how to use each skill`
+**Example:** `/flow:pr-desc include a ## Usage section showing how to use each skill`
 
 If provided, incorporate these instructions into the description format below.
 
@@ -34,7 +33,7 @@ python scripts/gather_context.py
 Check these in the JSON output BEFORE proceeding:
 
 1. **PR must exist**: If `pr_number` is null, STOP and say: "Error: No PR exists
-   for this branch. Use /pr to create one first."
+   for this branch. Use /flow:pr to create one first."
 
 ## Execution
 

@@ -1,5 +1,4 @@
 ---
-name: pr
 description: Create a pull request with title and body from branch context
 disable-model-invocation: true
 allowed-tools:
@@ -30,7 +29,7 @@ Check these in the JSON output BEFORE proceeding:
 2. **Has commits**: If `commits` array is empty, STOP and say: "Error: No
    commits found. Make commits before creating a PR."
 3. **No existing PR**: If `existing_pr` is not null, STOP and say: "Error: PR
-   already exists: <url>. Use /pr-title or /pr-desc to update it."
+   already exists: <url>. Use /flow:pr-title or /flow:pr-desc to update it."
 
 ## Execution
 
