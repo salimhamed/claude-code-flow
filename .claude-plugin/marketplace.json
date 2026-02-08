@@ -1,15 +1,15 @@
 {
   "name": "claude-code-flow",
   "owner": {
-    "name": "Salim"
+    "name": "Salim Hamed"
   },
   "metadata": {
-    "description": "Developer workflow utilities — PRs and worktrees"
+    "description": "Developer workflow utilities to keep in the flow"
   },
   "plugins": [
     {
       "name": "flow",
-      "description": "Developer workflow utilities — PRs and worktrees",
+      "description": "Developer workflow utilities to keep in the flow",
       "source": "./",
       "category": "development"
     }

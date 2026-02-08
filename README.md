@@ -1,6 +1,6 @@
 # claude-code-flow
 
-A Claude Code plugin providing developer workflow utilities for PRs and git worktrees.
+A Claude Code plugin providing developer workflow utilities to keep in the flow.
 
 ## Skills
 
@@ -42,7 +42,7 @@ Gathers branch context (commits, diff, changed files), generates a title and bod
 /flow:pr-desc
 ```
 
-Updates the body of an existing PR based on current branch context. Accepts optional instructions:
+Updates the body of an existing PR based on the current branch context. Accepts optional instructions:
 
 ```
 /flow:pr-desc include a ## Usage section showing how to use each skill
@@ -69,7 +69,6 @@ Creates an isolated git worktree in a sibling directory. Handles branch verifica
 - **Git** — all skills
 - **GitHub CLI (`gh`)** — PR skills (`pr`, `pr-desc`, `pr-title`)
 - **`uv`** — worktree skill (`create-git-worktree`)
-- **Python 3.10+** — all skills
 
 ## License
 

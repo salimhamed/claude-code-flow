@@ -1,9 +1,9 @@
 {
   "name": "flow",
-  "description": "Developer workflow utilities — PRs and worktrees",
+  "description": "Developer workflow utilities to keep in the flow",
   "version": "0.1.0",
   "author": {
-    "name": "Salim"
+    "name": "Salim Hamed"
   },
   "repository": "https://github.com/salimhamed/claude-code-flow",
   "license": "MIT",
