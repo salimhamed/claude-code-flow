@@ -7,7 +7,7 @@ Collects all context needed for updating a PR title.
 ### Usage
 
 ```bash
-python scripts/gather_context.py
+python $SKILL_DIR/scripts/gather_context.py
 ```
 
 ### Output Schema
@@ -49,7 +49,7 @@ Updates the PR title using the GitHub CLI.
 ### Usage
 
 ```bash
-python scripts/update_title.py --title "New title here"
+python $SKILL_DIR/scripts/update_title.py --title "New title here"
 ```
 
 ### Arguments

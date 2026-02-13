@@ -3,7 +3,7 @@
 ## Runtime
 
 ```bash
-uv run scripts/worktree.py <subcommand> [args...]
+uv run $SKILL_DIR/scripts/worktree.py <subcommand> [args...]
 ```
 
 Inline PEP 723 dependencies: `click>=8.1`, `pyyaml>=6.0`. No virtual
@@ -14,7 +14,7 @@ environment or `pip install` needed — `uv run` handles it.
 ### Usage
 
 ```bash
-uv run scripts/worktree.py create <BRANCH_NAME> [--parent-dir <path>]
+uv run $SKILL_DIR/scripts/worktree.py create <BRANCH_NAME> [--parent-dir <path>]
 ```
 
 | Argument        | Required | Description                                                              |
@@ -99,7 +99,7 @@ The `status` field determines which additional fields are present.
 ### Usage
 
 ```bash
-uv run scripts/worktree.py setup <WORKTREE_PATH>
+uv run $SKILL_DIR/scripts/worktree.py setup <WORKTREE_PATH>
 ```
 
 | Argument         | Required | Description                        |
@@ -129,7 +129,7 @@ avoiding redundant git calls.
 ### Usage
 
 ```bash
-uv run scripts/worktree.py sync <WORKTREE_PATH>
+uv run $SKILL_DIR/scripts/worktree.py sync <WORKTREE_PATH>
 ```
 
 | Argument         | Required | Description                        |
@@ -167,7 +167,7 @@ Done.
 ### Usage
 
 ```bash
-uv run scripts/worktree.py run-hooks <WORKTREE_PATH>
+uv run $SKILL_DIR/scripts/worktree.py run-hooks <WORKTREE_PATH>
 ```
 
 | Argument         | Required | Description                                 |
