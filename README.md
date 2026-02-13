@@ -64,6 +64,28 @@ Updates the title of an existing PR based on current branch context.
 
 Creates an isolated git worktree in a sibling directory. Handles branch verification, freshness checks against origin, config file syncing (via `.worktreerc.yml`), and post-create hooks.
 
+#### Configuring worktrees
+
+Add an optional `.worktreerc.yaml` file to your repo root to control file syncing and post-create hooks:
+
+```yaml
+worktree:
+  # Glob patterns matched against the main worktree root.
+  # Matched files are copied into new worktrees (existing files are not overwritten).
+  copy:
+    - .env
+    - .env.local
+    - .direnv
+
+  # Shell commands run sequentially in the new worktree directory.
+  # Stops on first failure.
+  post_create:
+    - uv sync
+    - pre-commit install
+```
+
+Both sections are optional. Omit either one and it becomes a no-op.
+
 ## Requirements
 
 - **Git** — all skills
