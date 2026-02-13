@@ -15,6 +15,10 @@ allowed-tools:
 
 # Create Git Worktree
 
+> **Path resolution:** `$SKILL_DIR` refers to the directory containing this
+> SKILL.md file. When constructing shell commands, replace `$SKILL_DIR` with the
+> absolute path derived from this file's location.
+
 ## Overview
 
 Git worktrees create isolated workspaces sharing the same repository, allowing
@@ -29,12 +33,12 @@ This skill uses a single unified CLI script for all worktree operations:
 
 | Script                | Description                                                       | Reference                |
 | --------------------- | ----------------------------------------------------------------- | ------------------------ |
-| `scripts/worktree.py` | Creates worktrees, syncs config files, and runs post-create hooks | `references/worktree.md` |
+| `$SKILL_DIR/scripts/worktree.py` | Creates worktrees, syncs config files, and runs post-create hooks | `references/worktree.md` |
 
 This script must be run with `uv` because it requires extra dependencies.
 
 ```bash
-uv run scripts/worktree.py <subcommand> [args...]
+uv run $SKILL_DIR/scripts/worktree.py <subcommand> [args...]
 ```
 
 You should read the reference file for specifics about a subcommand's arguments,
@@ -45,7 +49,7 @@ output format, and error handling.
 This skill accepts a **branch name** as the only argument.
 
 All prerequisite checks (default branch detection, branch verification, and
-freshness against origin) are handled by the `scripts/worktree.py create`
+freshness against origin) are handled by the `$SKILL_DIR/scripts/worktree.py create`
 subcommand.
 
 The `create` subcommand must be run as the first step in the process of creating
@@ -81,13 +85,13 @@ subcommand.
 ## Creation Steps
 
 **Important:** Do not run any git commands directly (e.g., `git rev-parse`,
-`git branch`). The `scripts/worktree.py` script handles all git operations
+`git branch`). The `$SKILL_DIR/scripts/worktree.py` script handles all git operations
 internally and its JSON output provides everything needed for this skill.
 
 ### 1. Setup & Create Worktree
 
 ```bash
-uv run scripts/worktree.py create <BRANCH_NAME> [--parent-dir <path>]
+uv run $SKILL_DIR/scripts/worktree.py create <BRANCH_NAME> [--parent-dir <path>]
 ```
 
 The script outputs JSON to stdout. Parse the result and handle accordingly:
@@ -102,7 +106,7 @@ The script outputs JSON to stdout. Parse the result and handle accordingly:
 ### 2. Setup Worktree (Sync + Hooks)
 
 ```bash
-uv run scripts/worktree.py setup <worktree_path>
+uv run $SKILL_DIR/scripts/worktree.py setup <worktree_path>
 ```
 
 Where `<worktree_path>` is the `worktree_path` value from step 1's JSON output.
@@ -154,11 +158,11 @@ Branch: <branch> (based on <default_branch> at <base_sha>)
 
 - Ignore `wrong_branch` or `behind_origin` status from the setup script
 - Run git commands directly — the script handles all git operations
-- Run `scripts/worktree.py sync` with `python` directly — it requires `uv` for
+- Run `$SKILL_DIR/scripts/worktree.py sync` with `python` directly — it requires `uv` for
   dependencies
 
 **Always:**
 
-- Use `scripts/worktree.py create` for creation (handles branch verification +
+- Use `$SKILL_DIR/scripts/worktree.py create` for creation (handles branch verification +
   freshness)
-- Run `scripts/worktree.py setup` after creating the worktree
+- Run `$SKILL_DIR/scripts/worktree.py setup` after creating the worktree

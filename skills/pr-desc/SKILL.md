@@ -9,6 +9,10 @@ allowed-tools:
 
 # Update PR Description
 
+> **Path resolution:** `$SKILL_DIR` refers to the directory containing this
+> SKILL.md file. When constructing shell commands, replace `$SKILL_DIR` with the
+> absolute path derived from this file's location.
+
 !read references/usage.md
 
 ## Arguments
@@ -25,7 +29,7 @@ If provided, incorporate these instructions into the description format below.
 Run the gather script:
 
 ```bash
-python scripts/gather_context.py
+python $SKILL_DIR/scripts/gather_context.py
 ```
 
 ## Preconditions
@@ -40,7 +44,7 @@ Check these in the JSON output BEFORE proceeding:
 Update the PR body:
 
 ```bash
-python scripts/update_description.py --body "<new body>"
+python $SKILL_DIR/scripts/update_description.py --body "<new body>"
 ```
 
 ## Body Format

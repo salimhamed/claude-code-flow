@@ -9,6 +9,10 @@ allowed-tools:
 
 # Create Pull Request
 
+> **Path resolution:** `$SKILL_DIR` refers to the directory containing this
+> SKILL.md file. When constructing shell commands, replace `$SKILL_DIR` with the
+> absolute path derived from this file's location.
+
 !read references/usage.md
 
 ## Gather Context
@@ -16,7 +20,7 @@ allowed-tools:
 Run the gather script:
 
 ```bash
-python scripts/gather_context.py
+python $SKILL_DIR/scripts/gather_context.py
 ```
 
 ## Preconditions
@@ -36,7 +40,7 @@ Check these in the JSON output BEFORE proceeding:
 Create the PR:
 
 ```bash
-python scripts/create_pr.py --title "<title>" --body "<body>"
+python $SKILL_DIR/scripts/create_pr.py --title "<title>" --body "<body>"
 ```
 
 ## Title Format

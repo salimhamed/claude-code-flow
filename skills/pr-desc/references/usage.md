@@ -7,7 +7,7 @@ Collects all context needed for updating a PR description.
 ### Usage
 
 ```bash
-python scripts/gather_context.py
+python $SKILL_DIR/scripts/gather_context.py
 ```
 
 ### Output Schema
@@ -49,7 +49,7 @@ Updates the PR description using the GitHub CLI.
 ### Usage
 
 ```bash
-python scripts/update_description.py --body "## Summary\n- Update feature X"
+python $SKILL_DIR/scripts/update_description.py --body "## Summary\n- Update feature X"
 ```
 
 ### Arguments
