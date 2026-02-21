@@ -142,7 +142,7 @@ uv run scripts/worktree.py sync <WORKTREE_PATH>
 2. Reads `copy` list from `.worktreerc.yml` (or `.worktreerc.yaml`) in the main worktree root
 3. Globs each pattern against the main worktree
 4. Copies matching files/directories into the target worktree
-   - Skips the `.worktreerc.yml`/`.yaml` config itself
+   - Automatically copies `.worktreerc.yml`/`.yaml` into the target worktree if present and not already there
    - Skips files that already exist in the target
    - Directories: `shutil.copytree`; files: `shutil.copy2`
 
@@ -204,6 +204,68 @@ Hook failed (exit 1): uv sync
 | `0`  | All hooks ran successfully, or no hooks defined                 |
 | `1`  | A hook command failed, not in git repo, or malformed YAML      |
 
+## `open-terminal`
+
+### Usage
+
+```bash
+uv run scripts/worktree.py open-terminal <WORKTREE_PATH> --branch <BRANCH>
+```
+
+| Argument         | Required | Description                                  |
+| ---------------- | -------- | -------------------------------------------- |
+| `WORKTREE_PATH`  | Yes      | Worktree directory to open a terminal in     |
+| `--branch`       | Yes      | Branch name (used for tmux window name)      |
+
+### Behavior
+
+1. Checks the `$TMUX` environment variable — if not set, outputs
+   `{"status": "skipped", "reason": "not_in_tmux"}` and exits 0
+2. Finds the main worktree and reads `tmux` config from `.worktreerc.yml`
+3. Checks `tmux.enabled` — if not truthy, outputs
+   `{"status": "skipped", "reason": "not_enabled"}` and exits 0
+4. Sanitizes the branch name for the tmux window name (replaces `/` with `-`)
+5. Runs `tmux new-window -c <worktree_path> -n <window_name> [command]`
+
+### JSON Output
+
+#### `opened`
+
+```json
+{
+  "status": "opened",
+  "window_name": "feature-auth",
+  "command": "claude"
+}
+```
+
+#### `skipped`
+
+```json
+{
+  "status": "skipped",
+  "reason": "not_in_tmux"
+}
+```
+
+`reason` values: `not_in_tmux` (no `$TMUX`), `not_enabled` (`tmux.enabled` is falsy or absent)
+
+#### `error`
+
+```json
+{
+  "status": "error",
+  "message": "tmux new-window failed: ..."
+}
+```
+
+### Exit Codes
+
+| Code | Meaning                                                        |
+| ---- | -------------------------------------------------------------- |
+| `0`  | `opened` or `skipped`                                          |
+| `1`  | `error` — tmux command failed                                  |
+
 ## `.worktreerc.yml` / `.worktreerc.yaml` Format
 
 Either extension is supported. `.yml` is checked first.
@@ -220,13 +282,21 @@ worktree:
   post_create:
     - uv sync
     - pre-commit install
+
+  # Tmux integration (optional, opt-in)
+  tmux:
+    enabled: true    # opt-in flag (default: false / absent = skip)
+    command: claude   # command to run in new window (default: user's shell)
 ```
 
 - Top-level key must be `worktree`
 - `copy`: list of glob patterns matched against the main worktree root
 - `post_create`: list of shell commands run via `shell=True` (pipes, redirects,
   etc. all work)
-- Both sections are optional — missing or empty sections are graceful no-ops
+- `tmux`: optional section for tmux integration
+  - `enabled`: set to `true` to activate tmux window creation (default: off)
+  - `command`: command to run in the new tmux window (omit for default shell)
+- All sections are optional — missing or empty sections are graceful no-ops
 
 ## Edge Cases
 

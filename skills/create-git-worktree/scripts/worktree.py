@@ -148,11 +148,16 @@ def _sync_files(main_root: Path, worktree_path: Path):
         return
 
     click.echo(f"Syncing from {main_root} into {worktree_path}:")
+    for rc_name in (".worktreerc.yml", ".worktreerc.yaml"):
+        src = main_root / rc_name
+        dest = worktree_path / rc_name
+        if src.exists() and not dest.exists():
+            shutil.copy2(src, dest)
+            click.echo(f"  copied {rc_name}")
+
     for pattern in copy_patterns:
         for source in main_root.glob(pattern):
             relative = source.relative_to(main_root)
-            if relative.name in (".worktreerc.yml", ".worktreerc.yaml"):
-                continue
             dest = worktree_path / relative
             if dest.exists():
                 continue
@@ -220,6 +225,45 @@ def setup(worktree_path: Path):
     main_root = _resolve_main_root()
     _sync_files(main_root, worktree_path)
     _run_post_hooks(main_root, worktree_path)
+
+
+@cli.command("open-terminal")
+@click.argument(
+    "worktree_path", type=click.Path(exists=True, file_okay=False, path_type=Path)
+)
+@click.option("--branch", required=True, help="Branch name (used for tmux window name).")
+def open_terminal(worktree_path: Path, branch: str):
+    """Open a tmux window at WORKTREE_PATH if running inside tmux."""
+    if not os.environ.get("TMUX"):
+        print(json.dumps({"status": "skipped", "reason": "not_in_tmux"}))
+        sys.exit(0)
+
+    main_root = _resolve_main_root()
+    config = load_worktreerc(main_root)
+    tmux_config = config.get("tmux", {}) or {}
+
+    if not tmux_config.get("enabled"):
+        print(json.dumps({"status": "skipped", "reason": "not_enabled"}))
+        sys.exit(0)
+
+    command = tmux_config.get("command")
+
+    window_name = branch.replace("/", "-")
+
+    tmux_cmd = ["tmux", "new-window", "-c", str(worktree_path), "-n", window_name]
+    if command:
+        tmux_cmd.append(command)
+
+    result = run(tmux_cmd)
+    if result.returncode != 0:
+        json_output("error", message=f"tmux new-window failed: {result.stderr.strip()}")
+
+    print(json.dumps({
+        "status": "opened",
+        "window_name": window_name,
+        "command": command or "(default shell)",
+    }))
+    sys.exit(0)
 
 
 if __name__ == "__main__":

@@ -118,7 +118,21 @@ Combines sync and post-create hooks into one invocation:
 Safe to skip if there is no `.worktreerc.yml`/`.yaml` — the script handles that
 gracefully.
 
-### 3. Report Location
+### 3. Open Terminal (if in tmux)
+
+```bash
+uv run scripts/worktree.py open-terminal <worktree_path> --branch <branch>
+```
+
+Outputs JSON. Handle:
+
+| `status`  | Action                                                         |
+| --------- | -------------------------------------------------------------- |
+| `opened`  | Tell user: "Opened tmux window '<window_name>'"               |
+| `skipped` | Do nothing (not running in tmux)                               |
+| `error`   | Show message to user                                           |
+
+### 4. Report Location
 
 ```text
 Worktree ready at <full-path>
