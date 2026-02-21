@@ -5,6 +5,7 @@ description:
 disable-model-invocation: true
 allowed-tools:
   - Read
+  - AskUserQuestion
   - Bash(git *)
   - Bash(gh *)
   - Bash(cd *)
