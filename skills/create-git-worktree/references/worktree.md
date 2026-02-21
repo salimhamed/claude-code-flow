@@ -221,9 +221,13 @@ uv run scripts/worktree.py open-terminal <WORKTREE_PATH> --branch <BRANCH>
 
 1. Checks the `$TMUX` environment variable — if not set, outputs
    `{"status": "skipped", "reason": "not_in_tmux"}` and exits 0
-2. Finds the main worktree and reads `tmux.command` from `.worktreerc.yml`
-3. Sanitizes the branch name for the tmux window name (replaces `/` with `-`)
-4. Runs `tmux new-window -c <worktree_path> -n <window_name> [command]`
+2. Finds the main worktree and reads `tmux` config from `.worktreerc.yml`
+3. Checks `tmux.enabled` — if not truthy, outputs
+   `{"status": "skipped", "reason": "not_enabled"}` and exits 0
+4. Sanitizes the branch name for the tmux window name (replaces `/` with `-`)
+5. If `tmux.switch` is true, captures the current pane ID before creating the new window
+6. Runs `tmux new-window -c <worktree_path> -n <window_name> [command]`
+7. If `tmux.switch` is true, kills the old pane (`tmux kill-pane -t <pane_id>`)
 
 ### JSON Output
 
@@ -233,7 +237,8 @@ uv run scripts/worktree.py open-terminal <WORKTREE_PATH> --branch <BRANCH>
 {
   "status": "opened",
   "window_name": "feature-auth",
-  "command": "claude"
+  "command": "claude",
+  "switch": true
 }
 ```
 
@@ -245,6 +250,8 @@ uv run scripts/worktree.py open-terminal <WORKTREE_PATH> --branch <BRANCH>
   "reason": "not_in_tmux"
 }
 ```
+
+`reason` values: `not_in_tmux` (no `$TMUX`), `not_enabled` (`tmux.enabled` is falsy or absent)
 
 #### `error`
 
@@ -279,9 +286,11 @@ worktree:
     - uv sync
     - pre-commit install
 
-  # Tmux integration (optional)
+  # Tmux integration (optional, opt-in)
   tmux:
-    command: claude  # command to run in new window (default: user's shell)
+    enabled: true    # opt-in flag (default: false / absent = skip)
+    command: claude   # command to run in new window (default: user's shell)
+    switch: true      # switch to new window and close old pane (default: false)
 ```
 
 - Top-level key must be `worktree`
@@ -289,7 +298,9 @@ worktree:
 - `post_create`: list of shell commands run via `shell=True` (pipes, redirects,
   etc. all work)
 - `tmux`: optional section for tmux integration
+  - `enabled`: set to `true` to activate tmux window creation (default: off)
   - `command`: command to run in the new tmux window (omit for default shell)
+  - `switch`: set to `true` to switch to the new window and close the old pane (default: `false`)
 - All sections are optional — missing or empty sections are graceful no-ops
 
 ## Edge Cases

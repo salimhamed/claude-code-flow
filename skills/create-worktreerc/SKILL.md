@@ -85,8 +85,10 @@ worktree:
     - pre-commit install
 
   tmux:
+    enabled: true
     command: claude
 ```
 
 Omit `copy` or `post_create` sections entirely if they would be empty.
-The `tmux` section should always be included.
+The `tmux` section should always be included with `enabled: true` (since the user
+explicitly opted to generate the config).

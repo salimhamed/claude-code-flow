@@ -236,7 +236,19 @@ def open_terminal(worktree_path: Path, branch: str):
     main_root = _resolve_main_root()
     config = load_worktreerc(main_root)
     tmux_config = config.get("tmux", {}) or {}
+
+    if not tmux_config.get("enabled"):
+        print(json.dumps({"status": "skipped", "reason": "not_enabled"}))
+        sys.exit(0)
+
     command = tmux_config.get("command")
+    switch = bool(tmux_config.get("switch"))
+
+    old_pane = None
+    if switch:
+        result = run(["tmux", "display-message", "-p", "#{pane_id}"])
+        if result.returncode == 0:
+            old_pane = result.stdout.strip()
 
     window_name = branch.replace("/", "-")
 
@@ -248,7 +260,15 @@ def open_terminal(worktree_path: Path, branch: str):
     if result.returncode != 0:
         json_output("error", message=f"tmux new-window failed: {result.stderr.strip()}")
 
-    print(json.dumps({"status": "opened", "window_name": window_name, "command": command or "(default shell)"}))
+    if switch and old_pane:
+        run(["tmux", "kill-pane", "-t", old_pane])
+
+    print(json.dumps({
+        "status": "opened",
+        "window_name": window_name,
+        "command": command or "(default shell)",
+        "switch": switch,
+    }))
     sys.exit(0)
 
 
