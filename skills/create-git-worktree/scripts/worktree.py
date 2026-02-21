@@ -148,11 +148,16 @@ def _sync_files(main_root: Path, worktree_path: Path):
         return
 
     click.echo(f"Syncing from {main_root} into {worktree_path}:")
+    for rc_name in (".worktreerc.yml", ".worktreerc.yaml"):
+        src = main_root / rc_name
+        dest = worktree_path / rc_name
+        if src.exists() and not dest.exists():
+            shutil.copy2(src, dest)
+            click.echo(f"  copied {rc_name}")
+
     for pattern in copy_patterns:
         for source in main_root.glob(pattern):
             relative = source.relative_to(main_root)
-            if relative.name in (".worktreerc.yml", ".worktreerc.yaml"):
-                continue
             dest = worktree_path / relative
             if dest.exists():
                 continue

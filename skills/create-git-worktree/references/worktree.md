@@ -142,7 +142,7 @@ uv run scripts/worktree.py sync <WORKTREE_PATH>
 2. Reads `copy` list from `.worktreerc.yml` (or `.worktreerc.yaml`) in the main worktree root
 3. Globs each pattern against the main worktree
 4. Copies matching files/directories into the target worktree
-   - Skips the `.worktreerc.yml`/`.yaml` config itself
+   - Automatically copies `.worktreerc.yml`/`.yaml` into the target worktree if present and not already there
    - Skips files that already exist in the target
    - Directories: `shutil.copytree`; files: `shutil.copy2`
 
