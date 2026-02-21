@@ -204,6 +204,64 @@ Hook failed (exit 1): uv sync
 | `0`  | All hooks ran successfully, or no hooks defined                 |
 | `1`  | A hook command failed, not in git repo, or malformed YAML      |
 
+## `open-terminal`
+
+### Usage
+
+```bash
+uv run scripts/worktree.py open-terminal <WORKTREE_PATH> --branch <BRANCH>
+```
+
+| Argument         | Required | Description                                  |
+| ---------------- | -------- | -------------------------------------------- |
+| `WORKTREE_PATH`  | Yes      | Worktree directory to open a terminal in     |
+| `--branch`       | Yes      | Branch name (used for tmux window name)      |
+
+### Behavior
+
+1. Checks the `$TMUX` environment variable — if not set, outputs
+   `{"status": "skipped", "reason": "not_in_tmux"}` and exits 0
+2. Finds the main worktree and reads `tmux.command` from `.worktreerc.yml`
+3. Sanitizes the branch name for the tmux window name (replaces `/` with `-`)
+4. Runs `tmux new-window -c <worktree_path> -n <window_name> [command]`
+
+### JSON Output
+
+#### `opened`
+
+```json
+{
+  "status": "opened",
+  "window_name": "feature-auth",
+  "command": "claude"
+}
+```
+
+#### `skipped`
+
+```json
+{
+  "status": "skipped",
+  "reason": "not_in_tmux"
+}
+```
+
+#### `error`
+
+```json
+{
+  "status": "error",
+  "message": "tmux new-window failed: ..."
+}
+```
+
+### Exit Codes
+
+| Code | Meaning                                                        |
+| ---- | -------------------------------------------------------------- |
+| `0`  | `opened` or `skipped`                                          |
+| `1`  | `error` — tmux command failed                                  |
+
 ## `.worktreerc.yml` / `.worktreerc.yaml` Format
 
 Either extension is supported. `.yml` is checked first.
@@ -220,13 +278,19 @@ worktree:
   post_create:
     - uv sync
     - pre-commit install
+
+  # Tmux integration (optional)
+  tmux:
+    command: claude  # command to run in new window (default: user's shell)
 ```
 
 - Top-level key must be `worktree`
 - `copy`: list of glob patterns matched against the main worktree root
 - `post_create`: list of shell commands run via `shell=True` (pipes, redirects,
   etc. all work)
-- Both sections are optional — missing or empty sections are graceful no-ops
+- `tmux`: optional section for tmux integration
+  - `command`: command to run in the new tmux window (omit for default shell)
+- All sections are optional — missing or empty sections are graceful no-ops
 
 ## Edge Cases
 
