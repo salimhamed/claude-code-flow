@@ -86,7 +86,6 @@ worktree:
 
   tmux:
     enabled: true
-    switch: true
     command: claude
 ```
 
