@@ -52,10 +52,11 @@ Use Glob to detect lock files and dev tooling:
 | File Found                  | Suggested Hook        |
 | --------------------------- | --------------------- |
 | `uv.lock` or `pyproject.toml` (with `[tool.uv]`) | `uv sync`             |
-| `package-lock.json`        | `npm install`         |
+| `package-lock.json`        | `npm ci`              |
 | `yarn.lock`                | `yarn install`        |
 | `pnpm-lock.yaml`           | `pnpm install`        |
 | `Gemfile.lock`             | `bundle install`      |
+| `.mise.toml` or `.tool-versions` | `mise install`  |
 | `.pre-commit-config.yaml`  | `pre-commit install`  |
 
 ### 3. Present Findings to User

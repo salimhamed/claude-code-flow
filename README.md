@@ -10,6 +10,7 @@ A Claude Code plugin providing developer workflow utilities to keep in the flow.
 | **pr-desc** | `/flow:pr-desc` | Update an existing PR's description from current branch context |
 | **pr-title** | `/flow:pr-title` | Update an existing PR's title from current branch context |
 | **create-git-worktree** | `/flow:create-git-worktree` | Create an isolated git worktree with config syncing and post-create hooks |
+| **create-worktreerc** | `/flow:create-worktreerc` | Scan the project and generate a `.worktreerc.yml` with sensible defaults |
 | **merge-worktree** | `/flow:merge-worktree` | Squash-merge the current branch's PR, clean up the worktree, and update main |
 
 ## Installation
@@ -85,7 +86,24 @@ worktree:
     - pre-commit install
 ```
 
-Both sections are optional. Omit either one and it becomes a no-op.
+The `tmux` section opens a new tmux window in the worktree directory after creation:
+
+```yaml
+worktree:
+  tmux:
+    enabled: true    # opt-in (default: off)
+    command: claude   # command to run in the new window (default: user's shell)
+```
+
+All sections are optional. Omit any one and it becomes a no-op.
+
+### Generate a worktreerc
+
+```
+/flow:create-worktreerc
+```
+
+Scans the project for gitignored config files, lock files, and dev tooling, then generates a `.worktreerc.yml` with sensible defaults. Detects patterns like `.env` files, `uv.lock`, `package-lock.json`, `.mise.toml`, `.pre-commit-config.yaml`, and more.
 
 ### Merge a worktree
 
