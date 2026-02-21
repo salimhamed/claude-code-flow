@@ -28,6 +28,8 @@ Each skill under `skills/` follows this pattern:
 - Uses PEP 723 inline script dependencies (`click>=8.1`, `pyyaml>=6.0`), run via `uv run`
 - Reads optional `.worktreerc.yml` for project-specific config (file syncing, post-create hooks)
 
+**Merge-worktree skill** (`merge-worktree`) uses no scripts — all logic is inline in SKILL.md with direct git/gh commands.
+
 ## Running Scripts
 
 All Python scripts are executed via `uv run` (handles inline dependencies automatically):
