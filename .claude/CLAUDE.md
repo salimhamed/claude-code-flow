@@ -23,12 +23,12 @@ Each skill under `skills/` follows this pattern:
 1. `gather_context.py` — Collects git/GitHub data (branch, commits, diff, changed files) and outputs structured JSON
 2. Execution script (`create_pr.py`, `update_title.py`, `update_description.py`) — Delegates to `gh` CLI
 
-**Worktree skill** (`create-git-worktree`) uses a single unified CLI script:
+**Worktree skill** (`wt-create`) uses a single unified CLI script:
 - `scripts/worktree.py` — Click-based CLI with subcommands: `create`, `setup`, `sync`, `run-hooks`
 - Uses PEP 723 inline script dependencies (`click>=8.1`, `pyyaml>=6.0`), run via `uv run`
 - Reads optional `.worktreerc.yml` for project-specific config (file syncing, post-create hooks)
 
-**Merge-worktree skill** (`merge-worktree`) uses no scripts — all logic is inline in SKILL.md with direct git/gh commands.
+**Merge-worktree skill** (`wt-merge`) uses no scripts — all logic is inline in SKILL.md with direct git/gh commands.
 
 ## Running Scripts
 
@@ -36,8 +36,8 @@ All Python scripts are executed via `uv run` (handles inline dependencies automa
 
 ```bash
 # Worktree CLI
-uv run skills/create-git-worktree/scripts/worktree.py create <branch>
-uv run skills/create-git-worktree/scripts/worktree.py setup <worktree-path>
+uv run skills/wt-create/scripts/worktree.py create <branch>
+uv run skills/wt-create/scripts/worktree.py setup <worktree-path>
 
 # PR context gathering
 python skills/pr/scripts/gather_context.py
@@ -57,3 +57,9 @@ python skills/pr-title/scripts/gather_context.py
 - Error handling uses JSON status codes and precondition checks defined in each `SKILL.md`
 - Skills declare their allowed tools in `SKILL.md` YAML frontmatter
 - Plugin metadata lives in `.claude-plugin/plugin.json`
+
+## Versioning
+
+Increment the plugin version in `.claude-plugin/plugin.json` with every change:
+- **Patch** (0.2.x) — bug fixes, doc updates
+- **Minor** (0.x.0) — new skills, renamed skills, behavioral changes

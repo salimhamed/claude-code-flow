@@ -14,7 +14,7 @@ allowed-tools:
 # Generate .worktreerc.yml
 
 Scan the current project and generate a `.worktreerc.yml` with sensible defaults
-for the `create-git-worktree` skill.
+for the `wt-create` skill.
 
 ## Steps
 

@@ -9,9 +9,9 @@ A Claude Code plugin providing developer workflow utilities to keep in the flow.
 | **pr** | `/flow:pr` | Create a pull request with auto-generated title and body from branch context |
 | **pr-desc** | `/flow:pr-desc` | Update an existing PR's description from current branch context |
 | **pr-title** | `/flow:pr-title` | Update an existing PR's title from current branch context |
-| **create-git-worktree** | `/flow:create-git-worktree` | Create an isolated git worktree with config syncing and post-create hooks |
-| **create-worktreerc** | `/flow:create-worktreerc` | Scan the project and generate a `.worktreerc.yml` with sensible defaults |
-| **merge-worktree** | `/flow:merge-worktree` | Squash-merge the current branch's PR, clean up the worktree, and update main |
+| **wt-create** | `/flow:wt-create` | Create an isolated git worktree with config syncing and post-create hooks |
+| **wt-init** | `/flow:wt-init` | Scan the project and generate a `.worktreerc.yml` with sensible defaults |
+| **wt-merge** | `/flow:wt-merge` | Squash-merge the current branch's PR, clean up the worktree, and update main |
 
 ## Installation
 
@@ -61,7 +61,7 @@ Updates the title of an existing PR based on current branch context.
 ### Create a git worktree
 
 ```
-/flow:create-git-worktree feature-branch
+/flow:wt-create feature-branch
 ```
 
 Creates an isolated git worktree in a sibling directory. Handles branch verification, freshness checks against origin, config file syncing (via `.worktreerc.yml`), and post-create hooks.
@@ -100,7 +100,7 @@ All sections are optional. Omit any one and it becomes a no-op.
 ### Generate a worktreerc
 
 ```
-/flow:create-worktreerc
+/flow:wt-init
 ```
 
 Scans the project for gitignored config files, lock files, and dev tooling, then generates a `.worktreerc.yml` with sensible defaults. Detects patterns like `.env` files, `uv.lock`, `package-lock.json`, `.mise.toml`, `.pre-commit-config.yaml`, and more.
@@ -108,7 +108,7 @@ Scans the project for gitignored config files, lock files, and dev tooling, then
 ### Merge a worktree
 
 ```
-/flow:merge-worktree
+/flow:wt-merge
 ```
 
 Run from a feature worktree with an open PR. Squash-merges the PR, removes the worktree, updates main, and reports remaining worktree status. Automatically pushes unpushed commits before merging. Blocks on uncommitted changes.
@@ -117,7 +117,7 @@ Run from a feature worktree with an open PR. Squash-merges the PR, removes the w
 
 - **Git** — all skills
 - **GitHub CLI (`gh`)** — PR skills (`pr`, `pr-desc`, `pr-title`)
-- **`uv`** — worktree skill (`create-git-worktree`)
+- **`uv`** — worktree skill (`wt-create`)
 
 ## License
 

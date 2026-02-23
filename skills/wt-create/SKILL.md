@@ -20,7 +20,7 @@ allowed-tools:
 Git worktrees create isolated workspaces sharing the same repository, allowing
 work on multiple branches simultaneously without switching.
 
-**Announce at start:** "I'm using the create-git-worktree skill to set up an
+**Announce at start:** "I'm using the wt-create skill to set up an
 isolated workspace."
 
 ## Script Reference
@@ -83,6 +83,9 @@ subcommand.
 **Important:** Do not run any git commands directly (e.g., `git rev-parse`,
 `git branch`). The `scripts/worktree.py` script handles all git operations
 internally and its JSON output provides everything needed for this skill.
+
+**Steps must be executed sequentially.** Each step depends on the previous
+step completing successfully. Do not run any steps in parallel.
 
 ### 1. Setup & Create Worktree
 
@@ -170,6 +173,7 @@ Branch: <branch> (based on <default_branch> at <base_sha>)
 - Run git commands directly — the script handles all git operations
 - Run `scripts/worktree.py sync` with `python` directly — it requires `uv` for
   dependencies
+- Run steps in parallel — each step depends on the previous one completing
 
 **Always:**
 

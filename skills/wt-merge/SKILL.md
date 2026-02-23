@@ -13,7 +13,7 @@ allowed-tools:
 
 # Merge Worktree
 
-**Announce at start:** "I'm using the merge-worktree skill to squash-merge and
+**Announce at start:** "I'm using the wt-merge skill to squash-merge and
 clean up."
 
 ## Context
