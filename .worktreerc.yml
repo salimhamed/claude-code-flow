@@ -1,0 +1,4 @@
+worktree:
+  tmux:
+    enabled: true
+    command: claude

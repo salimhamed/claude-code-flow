@@ -30,9 +30,10 @@ clean up."
 ```mermaid
 flowchart TD
     A[Preconditions] -- fail --> STOP
-    A -- pass --> B[Merge PR]
-    B --> C[Clean up worktree]
-    C --> D[Update main & report]
+    A -- pass --> B[Switch to main worktree]
+    B --> C[Merge PR]
+    C --> D[Clean up worktree]
+    D --> E[Update main & report]
 ```
 
 ## Preconditions
@@ -47,18 +48,33 @@ errors from `gh pr merge`.
 
 ## Steps
 
-### Step 1: Merge
+### Step 1: Switch to main worktree
+
+`cd` to the main worktree (first entry in the worktree list above). This MUST be
+a **standalone Bash call** — never chain it with `&&` or other commands. The Bash
+tool validates CWD before each invocation, so the `cd` must complete on its own
+to update the working directory for subsequent calls.
 
 ```bash
-gh pr merge --squash --delete-branch
+cd {MAIN_WORKTREE}
 ```
+
+### Step 2: Merge
+
+```bash
+gh pr merge {NUMBER} --squash
+```
+
+Use the PR number from context — do NOT use `--delete-branch` (it tries to
+switch branches locally, which fails when `main` is already checked out in
+another worktree). Branch cleanup is handled in Step 3.
 
 If this fails, STOP and show the error to the user. The error message from `gh`
 is self-explanatory (no PR, PR closed, merge conflicts, checks failing, etc.).
 
-### Step 2: Clean up worktree
+### Step 3: Clean up worktree
 
-`cd` to the main worktree (first entry in the worktree list above), then:
+Already in the main worktree from Step 1.
 
 ```bash
 git worktree remove --force {WORKTREE_PATH}
@@ -74,7 +90,7 @@ git branch -D {BRANCH}
 
 Tolerate errors on each command — the branch or directory may already be gone.
 
-### Step 3: Update main
+### Step 4: Update main
 
 ```bash
 git fetch --prune && git pull --ff-only
@@ -82,7 +98,7 @@ git fetch --prune && git pull --ff-only
 
 If `pull --ff-only` fails, warn the user but continue to the report.
 
-### Step 4: Report
+### Step 5: Report
 
 Summarize:
 
