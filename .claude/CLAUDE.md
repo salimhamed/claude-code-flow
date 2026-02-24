@@ -17,18 +17,17 @@ Each skill under `skills/` follows this pattern:
 - `scripts/` — Python scripts that implement the logic
 - `references/` — Documentation consumed by Claude when the skill runs
 
-### Two Skill Families
+### Skill Families
 
-**PR skills** (`pr`, `pr-title`, `pr-desc`) share a two-phase pattern:
+**PR skills** (`pr-create`, `pr-title`, `pr-desc`) share a two-phase pattern:
 1. `gather_context.py` — Collects git/GitHub data (branch, commits, diff, changed files) and outputs structured JSON
 2. Execution script (`create_pr.py`, `update_title.py`, `update_description.py`) — Delegates to `gh` CLI
 
-**Worktree skill** (`wt-create`) uses a single unified CLI script:
-- `scripts/worktree.py` — Click-based CLI with subcommands: `create`, `setup`, `sync`, `run-hooks`
-- Uses PEP 723 inline script dependencies (`click>=8.1`, `pyyaml>=6.0`), run via `uv run`
-- Reads optional `.worktreerc.yml` for project-specific config (file syncing, post-create hooks)
+**Worktree setup skills** (`wt-create`, `wt-init`):
+- `wt-create` uses a Click-based CLI (`scripts/worktree.py`) with PEP 723 inline dependencies, run via `uv run`
+- `wt-init` is inline in SKILL.md — scans the project and generates `.worktreerc.yml`
 
-**Merge-worktree skill** (`wt-merge`) uses no scripts — all logic is inline in SKILL.md with direct git/gh commands.
+**Worktree lifecycle skills** (`wt-merge`, `wt-destroy`) use no scripts — all logic is inline in SKILL.md with direct git/gh commands.
 
 ## Running Scripts
 
@@ -40,7 +39,7 @@ uv run skills/wt-create/scripts/worktree.py create <branch>
 uv run skills/wt-create/scripts/worktree.py setup <worktree-path>
 
 # PR context gathering
-python skills/pr/scripts/gather_context.py
+python skills/pr-create/scripts/gather_context.py
 python skills/pr-title/scripts/gather_context.py
 ```
 

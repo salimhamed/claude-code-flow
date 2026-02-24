@@ -4,14 +4,15 @@ A Claude Code plugin providing developer workflow utilities to keep in the flow.
 
 ## Skills
 
-| Skill | Command | Description |
-| ----- | ------- | ----------- |
-| **pr** | `/flow:pr` | Create a pull request with auto-generated title and body from branch context |
-| **pr-desc** | `/flow:pr-desc` | Update an existing PR's description from current branch context |
-| **pr-title** | `/flow:pr-title` | Update an existing PR's title from current branch context |
-| **wt-create** | `/flow:wt-create` | Create an isolated git worktree with config syncing and post-create hooks |
-| **wt-init** | `/flow:wt-init` | Scan the project and generate a `.worktreerc.yml` with sensible defaults |
-| **wt-merge** | `/flow:wt-merge` | Squash-merge the current branch's PR, clean up the worktree, and update main |
+| Command | Description |
+| ------- | ----------- |
+| `/flow:pr-create` | Create a pull request with auto-generated title and body from branch context |
+| `/flow:pr-desc` | Update an existing PR's description from current branch context |
+| `/flow:pr-title` | Update an existing PR's title from current branch context |
+| `/flow:wt-create` | Create an isolated git worktree with config syncing and post-create hooks |
+| `/flow:wt-init` | Scan the project and generate a `.worktreerc.yml` with sensible defaults |
+| `/flow:wt-destroy` | Destroy a worktree — close any PR, delete branches, and remove the worktree |
+| `/flow:wt-merge` | Squash-merge the current branch's PR, clean up the worktree, and update main |
 
 ## Installation
 
@@ -33,7 +34,7 @@ claude --plugin-dir /path/to/claude-code-flow
 ### Create a PR
 
 ```
-/flow:pr
+/flow:pr-create
 ```
 
 Gathers branch context (commits, diff, changed files), generates a title and body, then creates the PR via `gh pr create`. Refuses if on the base branch, no commits exist, or a PR already exists.
@@ -105,6 +106,14 @@ All sections are optional. Omit any one and it becomes a no-op.
 
 Scans the project for gitignored config files, lock files, and dev tooling, then generates a `.worktreerc.yml` with sensible defaults. Detects patterns like `.env` files, `uv.lock`, `package-lock.json`, `.mise.toml`, `.pre-commit-config.yaml`, and more.
 
+### Destroy a worktree
+
+```
+/flow:wt-destroy [branch-name]
+```
+
+Forcefully tears down a worktree — closes any associated PR, deletes local and remote branches, and removes the worktree directory. Discards uncommitted changes. Can target the current worktree (no argument) or a specific branch.
+
 ### Merge a worktree
 
 ```
@@ -116,7 +125,7 @@ Run from a feature worktree with an open PR. Squash-merges the PR, removes the w
 ## Requirements
 
 - **Git** — all skills
-- **GitHub CLI (`gh`)** — PR skills (`pr`, `pr-desc`, `pr-title`)
+- **GitHub CLI (`gh`)** — PR skills (`pr-create`, `pr-desc`, `pr-title`)
 - **`uv`** — worktree skill (`wt-create`)
 
 ## License
