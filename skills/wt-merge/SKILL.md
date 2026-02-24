@@ -7,8 +7,6 @@ allowed-tools:
   - AskUserQuestion
   - Bash(git *)
   - Bash(gh *)
-  - Bash(cd *)
-  - Bash(pwd)
 ---
 
 # Merge Worktree
@@ -30,10 +28,9 @@ clean up."
 ```mermaid
 flowchart TD
     A[Preconditions] -- fail --> STOP
-    A -- pass --> B[Switch to main worktree]
-    B --> C[Merge PR]
-    C --> D[Clean up worktree]
-    D --> E[Update main & report]
+    A -- pass --> B[Merge PR]
+    B --> C[Cleanup + update main]
+    C --> D[Report]
 ```
 
 ## Preconditions
@@ -46,68 +43,61 @@ errors from `gh pr merge`.
 | Uncommitted changes | Working tree status is non-empty | STOP — tell user to commit or stash |
 | Unpushed commits | Output shows commit SHAs or `NO_UPSTREAM` | Run `git push -u origin HEAD`, then continue |
 
+## Variables
+
+Extract from context above:
+
+| Variable | Source |
+|---|---|
+| `{NUMBER}` | PR number from PR info |
+| `{MAIN_WORKTREE}` | Path of the first entry in the worktree list (the main worktree) |
+| `{WORKTREE_PATH}` | Current directory (the feature worktree being removed) |
+| `{BRANCH}` | Current branch name |
+
 ## Steps
 
-### Step 1: Switch to main worktree
-
-`cd` to the main worktree (first entry in the worktree list above). This MUST be
-a **standalone Bash call** — never chain it with `&&` or other commands. The Bash
-tool validates CWD before each invocation, so the `cd` must complete on its own
-to update the working directory for subsequent calls.
-
-```bash
-cd {MAIN_WORKTREE}
-```
-
-### Step 2: Merge
+### Step 1: Merge
 
 ```bash
 gh pr merge {NUMBER} --squash
 ```
 
-Use the PR number from context — do NOT use `--delete-branch` (it tries to
-switch branches locally, which fails when `main` is already checked out in
-another worktree). Branch cleanup is handled in Step 3.
+Use the PR number from context. Do NOT use `--delete-branch` (it tries to switch
+branches locally, which fails when the default branch is already checked out in
+the main worktree). Branch cleanup is handled in Step 2.
 
-If this fails, STOP and show the error to the user. The error message from `gh`
-is self-explanatory (no PR, PR closed, merge conflicts, checks failing, etc.).
+If this fails, STOP and show the error to the user.
 
-### Step 3: Clean up worktree
+### Step 2: Cleanup + update main
 
-Already in the main worktree from Step 1.
+**CRITICAL:** This MUST be a **single Bash invocation**. After `worktree remove`
+deletes {WORKTREE_PATH}, the shell's CWD no longer exists and ALL subsequent
+Bash tool calls will fail. Every command uses `git -C` to operate from
+{MAIN_WORKTREE} regardless of the shell's CWD state.
 
-```bash
-git worktree remove --force {WORKTREE_PATH}
-```
-
-```bash
-git worktree prune
-```
+Do NOT split these into separate Bash calls. Do NOT remove or reorder commands.
 
 ```bash
-git branch -D {BRANCH}
+git -C {MAIN_WORKTREE} worktree remove --force {WORKTREE_PATH}; git -C {MAIN_WORKTREE} worktree prune; git -C {MAIN_WORKTREE} branch -D {BRANCH} 2>/dev/null; git -C {MAIN_WORKTREE} fetch --prune && git -C {MAIN_WORKTREE} pull --ff-only; echo "===REMAINING WORKTREES==="; git -C {MAIN_WORKTREE} worktree list
 ```
 
-Tolerate errors on each command — the branch or directory may already be gone.
+Commands are joined with `;` (continue regardless of errors) except `fetch && pull`
+which are dependent. Individual failures are tolerated — the branch or worktree
+directory may already be gone.
 
-### Step 4: Update main
+### Step 3: Report
 
-```bash
-git fetch --prune && git pull --ff-only
-```
-
-If `pull --ff-only` fails, warn the user but continue to the report.
-
-### Step 5: Report
+Parse the output from Step 2. Everything after `===REMAINING WORKTREES===` is
+the current worktree list.
 
 Summarize:
 
 - PR was squash-merged (include title and URL from context)
 - Worktree was removed
-- Main branch was updated (or note if ff-only failed)
+- Main branch was updated (or note if ff-only failed based on Step 2 output)
 
-List remaining worktrees from `git worktree list`. If any look stale (e.g.
-branch no longer exists on remote), offer to clean them up.
+List remaining worktrees. If any look stale (e.g. branch no longer exists on
+remote), offer to clean them up.
 
 ## Red Flags
 
@@ -115,8 +105,10 @@ branch no longer exists on remote), offer to clean them up.
 
 - Remove a worktree without merging first
 - Delete worktrees the user didn't confirm
+- Split Step 2 into multiple Bash calls
 
 **Always:**
 
-- Use `cd` to switch to main worktree before removing the feature worktree
+- Use `git -C {MAIN_WORKTREE}` for all git commands (never `cd`)
+- Keep all post-merge operations in a single Bash invocation
 - Tolerate errors during cleanup (worktree remove, branch delete)
