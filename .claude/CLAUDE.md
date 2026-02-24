@@ -19,7 +19,7 @@ Each skill under `skills/` follows this pattern:
 
 ### Two Skill Families
 
-**PR skills** (`pr`, `pr-title`, `pr-desc`) share a two-phase pattern:
+**PR skills** (`pr-create`, `pr-title`, `pr-desc`) share a two-phase pattern:
 1. `gather_context.py` — Collects git/GitHub data (branch, commits, diff, changed files) and outputs structured JSON
 2. Execution script (`create_pr.py`, `update_title.py`, `update_description.py`) — Delegates to `gh` CLI
 
@@ -40,7 +40,7 @@ uv run skills/wt-create/scripts/worktree.py create <branch>
 uv run skills/wt-create/scripts/worktree.py setup <worktree-path>
 
 # PR context gathering
-python skills/pr/scripts/gather_context.py
+python skills/pr-create/scripts/gather_context.py
 python skills/pr-title/scripts/gather_context.py
 ```
 

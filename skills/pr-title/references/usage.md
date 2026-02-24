@@ -65,5 +65,5 @@ python scripts/update_title.py --title "New title here"
 
 ### Error Scenarios
 
-- No PR exists: Use `/flow:pr` to create one first
+- No PR exists: Use `/flow:pr-create` to create one first
 - Not authenticated: `gh auth login` required

@@ -24,7 +24,7 @@ python scripts/gather_context.py
 Check these in the JSON output BEFORE proceeding:
 
 1. **PR must exist**: If `pr_number` is null, STOP and say: "Error: No PR exists
-   for this branch. Use `/flow:pr` to create one first."
+   for this branch. Use `/flow:pr-create` to create one first."
 
 ## Execution
 

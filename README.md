@@ -6,7 +6,7 @@ A Claude Code plugin providing developer workflow utilities to keep in the flow.
 
 | Skill | Command | Description |
 | ----- | ------- | ----------- |
-| **pr** | `/flow:pr` | Create a pull request with auto-generated title and body from branch context |
+| **pr-create** | `/flow:pr-create` | Create a pull request with auto-generated title and body from branch context |
 | **pr-desc** | `/flow:pr-desc` | Update an existing PR's description from current branch context |
 | **pr-title** | `/flow:pr-title` | Update an existing PR's title from current branch context |
 | **wt-create** | `/flow:wt-create` | Create an isolated git worktree with config syncing and post-create hooks |
@@ -33,7 +33,7 @@ claude --plugin-dir /path/to/claude-code-flow
 ### Create a PR
 
 ```
-/flow:pr
+/flow:pr-create
 ```
 
 Gathers branch context (commits, diff, changed files), generates a title and body, then creates the PR via `gh pr create`. Refuses if on the base branch, no commits exist, or a PR already exists.
@@ -116,7 +116,7 @@ Run from a feature worktree with an open PR. Squash-merges the PR, removes the w
 ## Requirements
 
 - **Git** — all skills
-- **GitHub CLI (`gh`)** — PR skills (`pr`, `pr-desc`, `pr-title`)
+- **GitHub CLI (`gh`)** — PR skills (`pr-create`, `pr-desc`, `pr-title`)
 - **`uv`** — worktree skill (`wt-create`)
 
 ## License

@@ -65,5 +65,5 @@ python scripts/update_description.py --body "## Summary\n- Update feature X"
 
 ### Error Scenarios
 
-- No PR exists: Use `/flow:pr` to create one first
+- No PR exists: Use `/flow:pr-create` to create one first
 - Not authenticated: `gh auth login` required
