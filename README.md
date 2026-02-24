@@ -11,6 +11,7 @@ A Claude Code plugin providing developer workflow utilities to keep in the flow.
 | `/flow:pr-title` | Update an existing PR's title from current branch context |
 | `/flow:wt-create` | Create an isolated git worktree with config syncing and post-create hooks |
 | `/flow:wt-init` | Scan the project and generate a `.worktreerc.yml` with sensible defaults |
+| `/flow:wt-destroy` | Destroy a worktree — close any PR, delete branches, and remove the worktree |
 | `/flow:wt-merge` | Squash-merge the current branch's PR, clean up the worktree, and update main |
 
 ## Installation
@@ -104,6 +105,14 @@ All sections are optional. Omit any one and it becomes a no-op.
 ```
 
 Scans the project for gitignored config files, lock files, and dev tooling, then generates a `.worktreerc.yml` with sensible defaults. Detects patterns like `.env` files, `uv.lock`, `package-lock.json`, `.mise.toml`, `.pre-commit-config.yaml`, and more.
+
+### Destroy a worktree
+
+```
+/flow:wt-destroy [branch-name]
+```
+
+Forcefully tears down a worktree — closes any associated PR, deletes local and remote branches, and removes the worktree directory. Discards uncommitted changes. Can target the current worktree (no argument) or a specific branch.
 
 ### Merge a worktree
 
