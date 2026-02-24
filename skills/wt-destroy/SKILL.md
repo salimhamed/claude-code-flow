@@ -1,7 +1,8 @@
 ---
 description:
   Destroy a worktree — close any PR, delete local and remote branches,
-  and remove the worktree, discarding all uncommitted changes
+  and remove the worktree, discarding all uncommitted changes.
+  Optionally takes a branch name argument; defaults to the current worktree.
 disable-model-invocation: true
 allowed-tools:
   - AskUserQuestion
@@ -11,7 +12,7 @@ allowed-tools:
 
 # Destroy Worktree
 
-**Announce at start:** "I'm using the wt-destroy skill to tear down this
+**Announce at start:** "I'm using the wt-destroy skill to tear down a
 worktree."
 
 ## Context
@@ -26,49 +27,75 @@ worktree."
 
 ```mermaid
 flowchart TD
-    A[Confirm with user] -- denied --> STOP
-    A -- confirmed --> B{PR exists?}
-    B -- yes --> C[Close PR]
-    B -- no --> D[Destroy worktree + branches]
-    C --> D
-    D --> E[Report]
+    A[Resolve target] --> B[Fetch PR info]
+    B --> C[Confirm with user]
+    C -- denied --> STOP
+    C -- confirmed --> D{PR exists?}
+    D -- yes --> E[Close PR]
+    D -- no --> F[Destroy worktree + branches]
+    E --> F
+    F --> G{Destroyed current dir?}
+    G -- yes --> H[Tell user to close session]
+    G -- no --> I[Report + offer more cleanup]
 ```
 
-## Precondition
+## Preconditions
 
 | Check | How to detect | Action |
 |---|---|---|
-| Not in a worktree | Worktree list has only one entry (the current directory is the main worktree) | STOP — tell user this is the main worktree, not a feature worktree |
+| Target is the main worktree | Target path matches the first entry in the worktree list | STOP — tell user this is the main worktree |
+| Branch argument doesn't match any worktree | No worktree entry has the given branch | STOP — tell user the branch was not found in the worktree list |
 
 Uncommitted changes do NOT block execution — they are discarded.
 
 ## Variables
 
-Extract from context above:
-
 | Variable | Source |
 |---|---|
-| `{BRANCH}` | Current branch name |
+| `{BRANCH}` | The skill argument if provided, otherwise the current branch |
 | `{MAIN_WORKTREE}` | Path of the first entry in the worktree list (the main worktree) |
-| `{WORKTREE_PATH}` | Current directory (the feature worktree being destroyed) |
-| `{NUMBER}` | PR number from PR info (may be absent if NO_PR) |
+| `{WORKTREE_PATH}` | Worktree path matching `{BRANCH}` from the worktree list |
+| `{NUMBER}` | PR number — from Step 2 if argument provided, from `!` context otherwise |
+| `{DESTROYING_SELF}` | `true` if current directory == `{WORKTREE_PATH}`, `false` otherwise |
+
+If a branch name argument was provided, look up `{WORKTREE_PATH}` from the
+worktree list by matching the `branch` field. If no argument, use the current
+directory for `{WORKTREE_PATH}` and the current branch for `{BRANCH}`.
 
 ## Steps
 
-### Step 1: Confirm
+### Step 1: Resolve target
+
+Determine `{BRANCH}`, `{WORKTREE_PATH}`, and `{DESTROYING_SELF}` from the
+argument or current directory (see Variables above). Check preconditions and
+STOP if they fail.
+
+### Step 2: Fetch PR info (if argument provided)
+
+Skip this step if no argument was provided — the `!` context already has PR info
+for the current branch.
+
+```bash
+gh pr view {BRANCH} --json number,url,state,title 2>/dev/null || echo NO_PR
+```
+
+This fetches PR info for the target branch (which differs from the current
+branch). Save the result for use in Steps 3 and 4.
+
+### Step 3: Confirm
 
 Use `AskUserQuestion` to confirm destruction. Include in the question:
 
 - Branch name: `{BRANCH}`
-- Uncommitted changes: count of lines from working tree status (or "none")
-- PR: title and number if exists, or "no PR"
+- Worktree path: `{WORKTREE_PATH}`
+- PR: title and number if exists, or "no associated PR"
 
-Example: "Destroy worktree for branch `fix-foo`? This will discard 3 uncommitted
-changes, close PR #42 'Fix foo', and delete the local and remote branches."
+Example: "Destroy worktree for branch `fix-foo` at `/path/to/fix-foo`? This will
+close PR #42 'Fix foo' and delete the local and remote branches."
 
 If the user denies, STOP.
 
-### Step 2: Close PR (if applicable)
+### Step 4: Close PR (if applicable)
 
 Skip this step if PR info shows `NO_PR` or the PR state is not `OPEN`.
 
@@ -78,11 +105,11 @@ gh pr close {NUMBER}
 
 Tolerate errors — the PR may have already been closed or merged.
 
-### Step 3: Destroy + cleanup
+### Step 5: Destroy + cleanup
 
-**CRITICAL:** This MUST be a **single Bash invocation**. After `worktree remove`
-deletes {WORKTREE_PATH}, the shell's CWD no longer exists and ALL subsequent
-Bash tool calls will fail. Every command uses `git -C` to operate from
+**CRITICAL:** This MUST be a **single Bash invocation**. If `{DESTROYING_SELF}`
+is true, the shell's CWD will no longer exist after `worktree remove` and ALL
+subsequent Bash tool calls will fail. Every command uses `git -C` to operate from
 {MAIN_WORKTREE} regardless of the shell's CWD state.
 
 Do NOT split these into separate Bash calls. Do NOT remove or reorder commands.
@@ -94,19 +121,29 @@ git -C {MAIN_WORKTREE} worktree remove --force {WORKTREE_PATH}; git -C {MAIN_WOR
 Commands are joined with `;` (continue regardless of errors). Individual failures
 are tolerated — the branch or remote may already be gone.
 
-### Step 4: Report
+### Step 6: Report
 
-Parse the output from Step 3. Everything after `===REMAINING WORKTREES===` is
+Parse the output from Step 5. Everything after `===REMAINING WORKTREES===` is
 the current worktree list.
 
-Summarize:
+**If `{DESTROYING_SELF}` is true:**
 
-- Worktree was destroyed
-- PR was closed (if applicable, include title and URL from context)
-- Local and remote branches were deleted
-- Any errors from Step 3 output (e.g. remote branch didn't exist)
+Summarize what was destroyed:
+- Worktree removed, PR closed (if applicable), branches deleted
 
-List remaining worktrees.
+Then tell the user: **"The current directory has been deleted. Please close this
+session and open a new one from a valid directory."**
+
+Do NOT run any further Bash commands or offer follow-up actions — the shell is
+broken.
+
+**If `{DESTROYING_SELF}` is false:**
+
+Summarize what was destroyed:
+- Worktree removed, PR closed (if applicable), branches deleted
+
+List remaining worktrees. If any look stale (e.g. branch no longer exists on
+remote), offer to destroy them.
 
 ## Red Flags
 
@@ -114,7 +151,8 @@ List remaining worktrees.
 
 - Run this on the main worktree
 - Skip the confirmation step
-- Split Step 3 into multiple Bash calls
+- Split Step 5 into multiple Bash calls
+- Run Bash commands after destroying the current worktree (`{DESTROYING_SELF}` = true)
 
 **Always:**
 
