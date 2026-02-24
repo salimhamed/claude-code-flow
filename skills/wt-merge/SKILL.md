@@ -95,9 +95,13 @@ Summarize:
 - PR was squash-merged (include title and URL from context)
 - Worktree was removed
 - Main branch was updated (or note if ff-only failed based on Step 2 output)
+- List remaining worktrees from Step 2 output
 
-List remaining worktrees. If any look stale (e.g. branch no longer exists on
-remote), offer to clean them up.
+Then tell the user: **"The current directory has been deleted. Please close this
+session and open a new one from a valid directory."**
+
+Do NOT run any further Bash commands or offer follow-up actions — the shell is
+broken because the CWD was deleted with the worktree.
 
 ## Red Flags
 
@@ -106,6 +110,7 @@ remote), offer to clean them up.
 - Remove a worktree without merging first
 - Delete worktrees the user didn't confirm
 - Split Step 2 into multiple Bash calls
+- Run Bash commands after Step 2 completes (CWD no longer exists)
 
 **Always:**
 
