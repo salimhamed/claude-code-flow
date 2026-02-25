@@ -22,10 +22,10 @@ If provided, incorporate these instructions into the description format below.
 
 ## Gather Context
 
-Run the gather script:
+Run the gather script, passing the user's project directory with `-C`:
 
 ```bash
-python scripts/gather_context.py
+python scripts/gather_context.py -C <user-project-directory>
 ```
 
 ## Preconditions
@@ -40,7 +40,7 @@ Check these in the JSON output BEFORE proceeding:
 Update the PR body:
 
 ```bash
-python scripts/update_description.py --body "<new body>"
+python scripts/update_description.py -C <user-project-directory> --body "<new body>"
 ```
 
 ## Body Format

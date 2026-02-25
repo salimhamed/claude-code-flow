@@ -7,8 +7,12 @@ Collects all context needed for updating a PR description.
 ### Usage
 
 ```bash
-python scripts/gather_context.py
+python scripts/gather_context.py -C <user-project-directory>
 ```
+
+| Argument | Required | Description                            |
+| -------- | -------- | -------------------------------------- |
+| -C       | No       | Project directory (defaults to CWD)    |
 
 ### Output Schema
 
@@ -49,14 +53,15 @@ Updates the PR description using the GitHub CLI.
 ### Usage
 
 ```bash
-python scripts/update_description.py --body "## Summary\n- Update feature X"
+python scripts/update_description.py -C <user-project-directory> --body "## Summary\n- Update feature X"
 ```
 
 ### Arguments
 
-| Argument | Required | Description                   |
-| -------- | -------- | ----------------------------- |
-| --body   | Yes      | New PR body (markdown format) |
+| Argument | Required | Description                         |
+| -------- | -------- | ----------------------------------- |
+| --body   | Yes      | New PR body (markdown format)       |
+| -C       | No       | Project directory (defaults to CWD) |
 
 ### Behavior
 

@@ -1,52 +1,54 @@
 #!/usr/bin/env python3
 """Gather context for updating a PR title."""
 
+import argparse
 import json
+import os
 import subprocess
 import sys
 
 
-def run(cmd: list[str], check: bool = False) -> str:
-    result = subprocess.run(cmd, capture_output=True, text=True)
+def run(cmd: list[str], cwd: str | None = None, check: bool = False) -> str:
+    result = subprocess.run(cmd, capture_output=True, text=True, cwd=cwd)
     if check and result.returncode != 0:
         raise subprocess.CalledProcessError(result.returncode, cmd, result.stderr)
     return result.stdout.strip()
 
 
-def get_base_branch() -> str:
-    return run(["gh", "repo", "view", "--json", "defaultBranchRef", "-q", ".defaultBranchRef.name"]) or "main"
+def get_base_branch(cwd: str) -> str:
+    return run(["gh", "repo", "view", "--json", "defaultBranchRef", "-q", ".defaultBranchRef.name"], cwd=cwd) or "main"
 
 
-def get_current_branch() -> str:
-    return run(["git", "branch", "--show-current"])
+def get_current_branch(cwd: str) -> str:
+    return run(["git", "branch", "--show-current"], cwd=cwd)
 
 
-def get_current_pr() -> dict | None:
-    output = run(["gh", "pr", "view", "--json", "number,url,title"])
+def get_current_pr(cwd: str) -> dict | None:
+    output = run(["gh", "pr", "view", "--json", "number,url,title"], cwd=cwd)
     if not output:
         return None
     return json.loads(output)
 
 
-def get_commits(base_branch: str) -> list[str]:
-    output = run(["git", "log", f"{base_branch}..HEAD", "--oneline"])
+def get_commits(base_branch: str, cwd: str) -> list[str]:
+    output = run(["git", "log", f"{base_branch}..HEAD", "--oneline"], cwd=cwd)
     return output.splitlines() if output else []
 
 
-def get_diff_stat(base_branch: str) -> str:
-    output = run(["git", "diff", f"{base_branch}...HEAD", "--stat"])
+def get_diff_stat(base_branch: str, cwd: str) -> str:
+    output = run(["git", "diff", f"{base_branch}...HEAD", "--stat"], cwd=cwd)
     lines = output.splitlines()
     return "\n".join(lines[-20:]) if len(lines) > 20 else output
 
 
-def get_files_changed(base_branch: str) -> list[str]:
-    output = run(["git", "diff", f"{base_branch}...HEAD", "--name-only"])
+def get_files_changed(base_branch: str, cwd: str) -> list[str]:
+    output = run(["git", "diff", f"{base_branch}...HEAD", "--name-only"], cwd=cwd)
     lines = output.splitlines()
     return lines[:30] if len(lines) > 30 else lines
 
 
-def get_diff(base_branch: str, max_lines: int = 500) -> str:
-    output = run(["git", "diff", f"{base_branch}...HEAD"])
+def get_diff(base_branch: str, cwd: str, max_lines: int = 500) -> str:
+    output = run(["git", "diff", f"{base_branch}...HEAD"], cwd=cwd)
     lines = output.splitlines()
     if len(lines) > max_lines:
         return "\n".join(lines[:max_lines]) + f"\n\n... (truncated, {len(lines) - max_lines} more lines)"
@@ -54,9 +56,14 @@ def get_diff(base_branch: str, max_lines: int = 500) -> str:
 
 
 def main():
-    base_branch = get_base_branch()
-    current_branch = get_current_branch()
-    pr = get_current_pr()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-C", default=os.getcwd(), help="Project directory")
+    args = parser.parse_args()
+    repo_dir = args.C
+
+    base_branch = get_base_branch(repo_dir)
+    current_branch = get_current_branch(repo_dir)
+    pr = get_current_pr(repo_dir)
 
     context = {
         "current_branch": current_branch,
@@ -64,10 +71,10 @@ def main():
         "pr_number": pr["number"] if pr else None,
         "pr_url": pr["url"] if pr else None,
         "current_title": pr["title"] if pr else None,
-        "commits": get_commits(base_branch),
-        "diff_stat": get_diff_stat(base_branch),
-        "files_changed": get_files_changed(base_branch),
-        "diff": get_diff(base_branch),
+        "commits": get_commits(base_branch, repo_dir),
+        "diff_stat": get_diff_stat(base_branch, repo_dir),
+        "files_changed": get_files_changed(base_branch, repo_dir),
+        "diff": get_diff(base_branch, repo_dir),
     }
 
     print(json.dumps(context, indent=2))

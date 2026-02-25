@@ -7,8 +7,12 @@ Collects all context needed for creating a pull request.
 ### Usage
 
 ```bash
-python scripts/gather_context.py
+python scripts/gather_context.py -C <user-project-directory>
 ```
+
+| Argument | Required | Description                            |
+| -------- | -------- | -------------------------------------- |
+| -C       | No       | Project directory (defaults to CWD)    |
 
 ### Output Schema
 
@@ -47,7 +51,7 @@ Creates a pull request using the GitHub CLI.
 ### Usage
 
 ```bash
-python scripts/create_pr.py --title "Add feature X" --body "## Summary\n- Add ..."
+python scripts/create_pr.py -C <user-project-directory> --title "Add feature X" --body "## Summary\n- Add ..."
 ```
 
 ### Arguments
@@ -56,6 +60,7 @@ python scripts/create_pr.py --title "Add feature X" --body "## Summary\n- Add ..
 | -------- | -------- | ------------------------------------------ |
 | --title  | Yes      | PR title (under 70 chars, imperative mood) |
 | --body   | Yes      | PR body (markdown format)                  |
+| -C       | No       | Project directory (defaults to CWD)        |
 
 ### Behavior
 

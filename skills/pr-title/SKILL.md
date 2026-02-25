@@ -13,10 +13,10 @@ allowed-tools:
 
 ## Gather Context
 
-Run the gather script:
+Run the gather script, passing the user's project directory with `-C`:
 
 ```bash
-python scripts/gather_context.py
+python scripts/gather_context.py -C <user-project-directory>
 ```
 
 ## Preconditions
@@ -31,7 +31,7 @@ Check these in the JSON output BEFORE proceeding:
 Update the PR title:
 
 ```bash
-python scripts/update_title.py --title "<new title>"
+python scripts/update_title.py -C <user-project-directory> --title "<new title>"
 ```
 
 ## Title Format
