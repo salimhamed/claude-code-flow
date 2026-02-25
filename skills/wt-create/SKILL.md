@@ -15,6 +15,12 @@ allowed-tools:
 
 # Create Git Worktree
 
+## Script Location
+
+**Scripts live next to this SKILL.md, not in the user's project.** Before
+running any script, determine the directory containing this SKILL.md file. Use
+that absolute path as `{SKILL_DIR}` when constructing script paths below.
+
 ## Overview
 
 Git worktrees create isolated workspaces sharing the same repository, allowing
@@ -34,7 +40,7 @@ This skill uses a single unified CLI script for all worktree operations:
 This script must be run with `uv` because it requires extra dependencies.
 
 ```bash
-uv run scripts/worktree.py <subcommand> [args...]
+uv run {SKILL_DIR}/scripts/worktree.py <subcommand> [args...]
 ```
 
 You should read the reference file for specifics about a subcommand's arguments,
@@ -90,7 +96,7 @@ step completing successfully. Do not run any steps in parallel.
 ### 1. Setup & Create Worktree
 
 ```bash
-uv run scripts/worktree.py create <BRANCH_NAME> [--parent-dir <path>]
+uv run {SKILL_DIR}/scripts/worktree.py create <BRANCH_NAME> [--parent-dir <path>]
 ```
 
 The script outputs JSON to stdout. Parse the result and handle accordingly:
@@ -105,7 +111,7 @@ The script outputs JSON to stdout. Parse the result and handle accordingly:
 ### 2. Setup Worktree (Sync + Hooks)
 
 ```bash
-uv run scripts/worktree.py setup <worktree_path>
+uv run {SKILL_DIR}/scripts/worktree.py setup <worktree_path>
 ```
 
 Where `<worktree_path>` is the `worktree_path` value from step 1's JSON output.
@@ -124,7 +130,7 @@ gracefully.
 ### 3. Open Terminal (if in tmux)
 
 ```bash
-uv run scripts/worktree.py open-terminal <worktree_path> --branch <branch>
+uv run {SKILL_DIR}/scripts/worktree.py open-terminal <worktree_path> --branch <branch>
 ```
 
 Outputs JSON. Handle:
@@ -171,12 +177,12 @@ Branch: <branch> (based on <default_branch> at <base_sha>)
 
 - Ignore `wrong_branch` or `behind_origin` status from the setup script
 - Run git commands directly — the script handles all git operations
-- Run `scripts/worktree.py sync` with `python` directly — it requires `uv` for
+- Run `{SKILL_DIR}/scripts/worktree.py sync` with `python` directly — it requires `uv` for
   dependencies
 - Run steps in parallel — each step depends on the previous one completing
 
 **Always:**
 
-- Use `scripts/worktree.py create` for creation (handles branch verification +
+- Use `{SKILL_DIR}/scripts/worktree.py create` for creation (handles branch verification +
   freshness)
-- Run `scripts/worktree.py setup` after creating the worktree
+- Run `{SKILL_DIR}/scripts/worktree.py setup` after creating the worktree

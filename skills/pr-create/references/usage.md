@@ -7,7 +7,7 @@ Collects all context needed for creating a pull request.
 ### Usage
 
 ```bash
-python scripts/gather_context.py -C <user-project-directory>
+python {SKILL_DIR}/scripts/gather_context.py -C <user-project-directory>
 ```
 
 | Argument | Required | Description                            |
@@ -51,7 +51,7 @@ Creates a pull request using the GitHub CLI.
 ### Usage
 
 ```bash
-python scripts/create_pr.py -C <user-project-directory> --title "Add feature X" --body "## Summary\n- Add ..."
+python {SKILL_DIR}/scripts/create_pr.py -C <user-project-directory> --title "Add feature X" --body "## Summary\n- Add ..."
 ```
 
 ### Arguments

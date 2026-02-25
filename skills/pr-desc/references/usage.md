@@ -7,7 +7,7 @@ Collects all context needed for updating a PR description.
 ### Usage
 
 ```bash
-python scripts/gather_context.py -C <user-project-directory>
+python {SKILL_DIR}/scripts/gather_context.py -C <user-project-directory>
 ```
 
 | Argument | Required | Description                            |
@@ -53,7 +53,7 @@ Updates the PR description using the GitHub CLI.
 ### Usage
 
 ```bash
-python scripts/update_description.py -C <user-project-directory> --body "## Summary\n- Update feature X"
+python {SKILL_DIR}/scripts/update_description.py -C <user-project-directory> --body "## Summary\n- Update feature X"
 ```
 
 ### Arguments

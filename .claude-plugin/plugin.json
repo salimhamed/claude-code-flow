@@ -1,7 +1,7 @@
 {
   "name": "flow",
   "description": "Developer workflow utilities to keep in the flow",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "author": {
     "name": "Salim Hamed"
   },

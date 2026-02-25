@@ -9,6 +9,12 @@ allowed-tools:
 
 # Update PR Title
 
+## Script Location
+
+**Scripts live next to this SKILL.md, not in the user's project.** Before
+running any script, determine the directory containing this SKILL.md file. Use
+that absolute path as `{SKILL_DIR}` when constructing script paths below.
+
 !read references/usage.md
 
 ## Gather Context
@@ -16,7 +22,7 @@ allowed-tools:
 Run the gather script, passing the user's project directory with `-C`:
 
 ```bash
-python scripts/gather_context.py -C <user-project-directory>
+python {SKILL_DIR}/scripts/gather_context.py -C <user-project-directory>
 ```
 
 ## Preconditions
@@ -31,7 +37,7 @@ Check these in the JSON output BEFORE proceeding:
 Update the PR title:
 
 ```bash
-python scripts/update_title.py -C <user-project-directory> --title "<new title>"
+python {SKILL_DIR}/scripts/update_title.py -C <user-project-directory> --title "<new title>"
 ```
 
 ## Title Format
