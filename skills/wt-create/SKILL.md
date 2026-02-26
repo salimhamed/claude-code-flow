@@ -135,11 +135,11 @@ uv run {SKILL_DIR}/scripts/worktree.py open-terminal <worktree_path> --branch <b
 
 Outputs JSON. Handle:
 
-| `status`  | Action                                                         |
-| --------- | -------------------------------------------------------------- |
-| `opened`  | Tell user: "Opened tmux window '<window_name>'"               |
-| `skipped` | Do nothing (not running in tmux)                               |
-| `error`   | Show message to user                                           |
+| `status`  | Action                                                                                                       |
+| --------- | ------------------------------------------------------------------------------------------------------------ |
+| `opened`  | Check `mode`: if `"session"`, tell user "Opened tmux session '<session_name>'"; else "Opened tmux window '<window_name>'" |
+| `skipped` | Do nothing (not running in tmux)                                                                             |
+| `error`   | Show message to user                                                                                         |
 
 ### 4. Report Location
 

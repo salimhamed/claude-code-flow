@@ -224,17 +224,34 @@ uv run {SKILL_DIR}/scripts/worktree.py open-terminal <WORKTREE_PATH> --branch <B
 2. Finds the main worktree and reads `tmux` config from `.worktreerc.yml`
 3. Checks `tmux.enabled` — if not truthy, outputs
    `{"status": "skipped", "reason": "not_enabled"}` and exits 0
-4. Sanitizes the branch name for the tmux window name (replaces `/` with `-`)
-5. Runs `tmux new-window -c <worktree_path> -n <window_name> [command]`
+4. Reads `tmux.mode` — must be `"window"` (default) or `"session"`, else errors
+5. Sanitizes the branch name (replaces `/` with `-`) for the tmux name
+6. Branches on mode:
+   - **`window`** (default): runs `tmux new-window -c <path> -n <name> [command]`
+   - **`session`**: checks `tmux has-session -t <name>` (errors if exists),
+     then `tmux new-session -d -s <name> -c <path> [command]`,
+     then `tmux switch-client -t <name>`
 
 ### JSON Output
 
-#### `opened`
+#### `opened` (window mode)
 
 ```json
 {
   "status": "opened",
+  "mode": "window",
   "window_name": "feature-auth",
+  "command": "claude"
+}
+```
+
+#### `opened` (session mode)
+
+```json
+{
+  "status": "opened",
+  "mode": "session",
+  "session_name": "feature-auth",
   "command": "claude"
 }
 ```
@@ -286,7 +303,8 @@ worktree:
   # Tmux integration (optional, opt-in)
   tmux:
     enabled: true    # opt-in flag (default: false / absent = skip)
-    command: claude   # command to run in new window (default: user's shell)
+    mode: window     # "window" (default) or "session"
+    command: claude   # command to run in new window/session (default: user's shell)
 ```
 
 - Top-level key must be `worktree`
@@ -295,7 +313,8 @@ worktree:
   etc. all work)
 - `tmux`: optional section for tmux integration
   - `enabled`: set to `true` to activate tmux window creation (default: off)
-  - `command`: command to run in the new tmux window (omit for default shell)
+  - `mode`: `"window"` (default) creates a new tmux window; `"session"` creates a new tmux session
+  - `command`: command to run in the new tmux window/session (omit for default shell)
 - All sections are optional — missing or empty sections are graceful no-ops
 
 ## Edge Cases
@@ -309,3 +328,5 @@ worktree:
 | Commands with pipes/redirects | Work via `shell=True`                                 |
 | `sync` on main worktree      | Detected via path comparison, prints message, exit 0  |
 | Not in a git repo             | `get_main_worktree()` raises, caught and reported     |
+| Session already exists        | `tmux has-session` succeeds → JSON error, exit 1      |
+| Invalid `tmux.mode` value     | JSON error with message, exit 1                       |

@@ -67,7 +67,7 @@ confirm or adjust:
 
 - Which copy patterns to include
 - Which post-create hooks to include
-- Whether to change the default tmux command
+- Whether to change the default tmux command or mode (`window` vs `session`)
 
 ### 4. Write .worktreerc.yml
 
@@ -88,6 +88,7 @@ worktree:
 
   tmux:
     enabled: true
+    mode: window
     command: claude
 ```
 
