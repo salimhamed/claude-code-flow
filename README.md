@@ -99,37 +99,33 @@ Updates the title of an existing PR based on current branch context.
 
 Creates an isolated git worktree in a sibling directory. Handles branch verification, freshness checks against origin, config file syncing (via `.worktreerc.yml`), and post-create hooks.
 
-#### Configuring worktrees
+#### `.worktreerc.yml`
 
-Add an optional `.worktreerc.yaml` file to your repo root to control file syncing and post-create hooks:
+Add an optional `.worktreerc.yml` (or `.worktreerc.yaml`) to your repo root to configure worktree creation. All sections are optional — omit any one and it becomes a no-op.
 
 ```yaml
 worktree:
-  # Glob patterns matched against the main worktree root.
-  # Matched files are copied into new worktrees (existing files are not overwritten).
+  # Files/dirs to copy from main worktree into new worktrees (glob patterns).
+  # Matched against the main worktree root. Existing files are not overwritten.
   copy:
     - .env
     - .env.local
     - .direnv
 
-  # Shell commands run sequentially in the new worktree directory.
-  # Stops on first failure.
+  # Shell commands run sequentially in the new worktree after creation.
+  # Stops on first failure. Pipes, redirects, etc. all work.
   post_create:
     - uv sync
     - pre-commit install
-```
 
-The `tmux` section opens a new tmux window or session in the worktree directory after creation:
-
-```yaml
-worktree:
+  # Tmux integration — automatically open the new worktree in tmux.
+  # Requires running inside a tmux session. Skipped silently otherwise.
   tmux:
-    enabled: true    # opt-in (default: off)
-    mode: window     # "window" (default) or "session"
-    command: claude   # command to run in the new window/session (default: user's shell)
+    enabled: true    # opt-in flag (default: off)
+    mode: window     # "window" opens a new tmux window (default)
+                     # "session" creates a new tmux session instead
+    command: claude   # command to run in the new window/session (omit for default shell)
 ```
-
-All sections are optional. Omit any one and it becomes a no-op.
 
 ### Generate a worktreerc
 
