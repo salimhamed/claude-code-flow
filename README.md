@@ -16,6 +16,12 @@ A Claude Code plugin providing developer workflow utilities to keep in the flow.
 
 ## Installation
 
+### Requirements
+
+- **Git** (`git`)
+- **GitHub CLI (`gh`)**
+- **uv** (`uv`)
+
 ### From GitHub
 
 Add the marketplace from within Claude Code:
@@ -145,12 +151,6 @@ Forcefully tears down a worktree — closes any associated PR, deletes local and
 ```
 
 Run from a feature worktree with an open PR. Squash-merges the PR, removes the worktree, updates main, and reports remaining worktree status. Automatically pushes unpushed commits before merging. Blocks on uncommitted changes.
-
-## Requirements
-
-- **Git** — all skills
-- **GitHub CLI (`gh`)** — PR skills (`pr-create`, `pr-desc`, `pr-title`)
-- **`uv`** — worktree skill (`wt-create`)
 
 ## License
 
