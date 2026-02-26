@@ -204,85 +204,6 @@ Hook failed (exit 1): uv sync
 | `0`  | All hooks ran successfully, or no hooks defined                 |
 | `1`  | A hook command failed, not in git repo, or malformed YAML      |
 
-## `open-terminal`
-
-### Usage
-
-```bash
-uv run {SKILL_DIR}/scripts/worktree.py open-terminal <WORKTREE_PATH> --branch <BRANCH>
-```
-
-| Argument         | Required | Description                                  |
-| ---------------- | -------- | -------------------------------------------- |
-| `WORKTREE_PATH`  | Yes      | Worktree directory to open a terminal in     |
-| `--branch`       | Yes      | Branch name (used for tmux window name)      |
-
-### Behavior
-
-1. Checks the `$TMUX` environment variable — if not set, outputs
-   `{"status": "skipped", "reason": "not_in_tmux"}` and exits 0
-2. Finds the main worktree and reads `tmux` config from `.worktreerc.yml`
-3. Checks `tmux.enabled` — if not truthy, outputs
-   `{"status": "skipped", "reason": "not_enabled"}` and exits 0
-4. Reads `tmux.mode` — must be `"window"` (default) or `"session"`, else errors
-5. Sanitizes the branch name (replaces `/` with `-`) for the tmux name
-6. Branches on mode:
-   - **`window`** (default): runs `tmux new-window -c <path> -n <name> [command]`
-   - **`session`**: checks `tmux has-session -t <name>` (errors if exists),
-     then `tmux new-session -d -s <name> -c <path> [command]`,
-     then `tmux switch-client -t <name>`
-
-### JSON Output
-
-#### `opened` (window mode)
-
-```json
-{
-  "status": "opened",
-  "mode": "window",
-  "window_name": "feature-auth",
-  "command": "claude"
-}
-```
-
-#### `opened` (session mode)
-
-```json
-{
-  "status": "opened",
-  "mode": "session",
-  "session_name": "feature-auth",
-  "command": "claude"
-}
-```
-
-#### `skipped`
-
-```json
-{
-  "status": "skipped",
-  "reason": "not_in_tmux"
-}
-```
-
-`reason` values: `not_in_tmux` (no `$TMUX`), `not_enabled` (`tmux.enabled` is falsy or absent)
-
-#### `error`
-
-```json
-{
-  "status": "error",
-  "message": "tmux new-window failed: ..."
-}
-```
-
-### Exit Codes
-
-| Code | Meaning                                                        |
-| ---- | -------------------------------------------------------------- |
-| `0`  | `opened` or `skipped`                                          |
-| `1`  | `error` — tmux command failed                                  |
-
 ## `.worktreerc.yml` / `.worktreerc.yaml` Format
 
 Either extension is supported. `.yml` is checked first.
@@ -300,21 +221,12 @@ worktree:
     - uv sync
     - pre-commit install
 
-  # Tmux integration (optional, opt-in)
-  tmux:
-    enabled: true    # opt-in flag (default: false / absent = skip)
-    mode: window     # "window" (default) or "session"
-    command: claude   # command to run in new window/session (default: user's shell)
 ```
 
 - Top-level key must be `worktree`
 - `copy`: list of glob patterns matched against the main worktree root
 - `post_create`: list of shell commands run via `shell=True` (pipes, redirects,
   etc. all work)
-- `tmux`: optional section for tmux integration
-  - `enabled`: set to `true` to activate tmux window creation (default: off)
-  - `mode`: `"window"` (default) creates a new tmux window; `"session"` creates a new tmux session
-  - `command`: command to run in the new tmux window/session (omit for default shell)
 - All sections are optional — missing or empty sections are graceful no-ops
 
 ## Edge Cases
@@ -328,5 +240,3 @@ worktree:
 | Commands with pipes/redirects | Work via `shell=True`                                 |
 | `sync` on main worktree      | Detected via path comparison, prints message, exit 0  |
 | Not in a git repo             | `get_main_worktree()` raises, caught and reported     |
-| Session already exists        | `tmux has-session` succeeds → JSON error, exit 1      |
-| Invalid `tmux.mode` value     | JSON error with message, exit 1                       |
