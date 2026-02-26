@@ -67,12 +67,10 @@ confirm or adjust:
 
 - Which copy patterns to include
 - Which post-create hooks to include
-- Whether to change the default tmux command or mode (`window` vs `session`)
 
 ### 4. Write .worktreerc.yml
 
-Generate the file with the confirmed settings. Always include the `tmux` section
-with `command: claude` as the default.
+Generate the file with the confirmed settings.
 
 Example output:
 
@@ -85,13 +83,6 @@ worktree:
   post_create:
     - uv sync
     - pre-commit install
-
-  tmux:
-    enabled: true
-    mode: window
-    command: claude
 ```
 
 Omit `copy` or `post_create` sections entirely if they would be empty.
-The `tmux` section should always be included with `enabled: true` (since the user
-explicitly opted to generate the config).

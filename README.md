@@ -117,14 +117,6 @@ worktree:
   post_create:
     - uv sync
     - pre-commit install
-
-  # Tmux integration — automatically open the new worktree in tmux.
-  # Requires running inside a tmux session. Skipped silently otherwise.
-  tmux:
-    enabled: true    # opt-in flag (default: off)
-    mode: window     # "window" opens a new tmux window (default)
-                     # "session" creates a new tmux session instead
-    command: claude   # command to run in the new window/session (omit for default shell)
 ```
 
 ### Generate a worktreerc
