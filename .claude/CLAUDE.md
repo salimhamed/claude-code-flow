@@ -39,8 +39,8 @@ uv run skills/wt-create/scripts/worktree.py create <branch>
 uv run skills/wt-create/scripts/worktree.py setup <worktree-path>
 
 # PR context gathering
-python skills/pr-create/scripts/gather_context.py
-python skills/pr-title/scripts/gather_context.py
+python skills/pr-create/scripts/gather_context.py -C .
+python skills/pr-title/scripts/gather_context.py -C .
 ```
 
 ## Requirements

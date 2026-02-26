@@ -7,8 +7,12 @@ Collects all context needed for updating a PR title.
 ### Usage
 
 ```bash
-python scripts/gather_context.py
+python {SKILL_DIR}/scripts/gather_context.py -C <user-project-directory>
 ```
+
+| Argument | Required | Description                            |
+| -------- | -------- | -------------------------------------- |
+| -C       | No       | Project directory (defaults to CWD)    |
 
 ### Output Schema
 
@@ -49,7 +53,7 @@ Updates the PR title using the GitHub CLI.
 ### Usage
 
 ```bash
-python scripts/update_title.py --title "New title here"
+python {SKILL_DIR}/scripts/update_title.py -C <user-project-directory> --title "New title here"
 ```
 
 ### Arguments
@@ -57,6 +61,7 @@ python scripts/update_title.py --title "New title here"
 | Argument | Required | Description                                    |
 | -------- | -------- | ---------------------------------------------- |
 | --title  | Yes      | New PR title (under 70 chars, imperative mood) |
+| -C       | No       | Project directory (defaults to CWD)            |
 
 ### Behavior
 
