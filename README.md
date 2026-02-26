@@ -16,17 +16,41 @@ A Claude Code plugin providing developer workflow utilities to keep in the flow.
 
 ## Installation
 
-### From marketplace
+### From GitHub
+
+Add the marketplace from within Claude Code:
+
+Using HTTPS:
 
 ```
-claude plugin install claude-code-flow
+/plugin marketplace add https://github.com/salimhamed/claude-code-flow.git
+```
+
+Or using SSH:
+
+```
+/plugin marketplace add git@github.com:salimhamed/claude-code-flow.git
+```
+
+Then install the plugin:
+
+```
+/plugin install flow@claude-code-flow
 ```
 
 ### Local development
 
+Clone the repository from your terminal:
+
 ```bash
 git clone https://github.com/salimhamed/claude-code-flow.git
-claude --plugin-dir /path/to/claude-code-flow
+```
+
+Then from within Claude Code, add the local directory and install:
+
+```
+/plugin marketplace add ./claude-code-flow
+/plugin install flow@claude-code-flow
 ```
 
 ## Usage
