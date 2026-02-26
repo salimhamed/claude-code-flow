@@ -231,9 +231,9 @@ def setup(worktree_path: Path):
 @click.argument(
     "worktree_path", type=click.Path(exists=True, file_okay=False, path_type=Path)
 )
-@click.option("--branch", required=True, help="Branch name (used for tmux window name).")
+@click.option("--branch", required=True, help="Branch name (used for tmux window/session name).")
 def open_terminal(worktree_path: Path, branch: str):
-    """Open a tmux window at WORKTREE_PATH if running inside tmux."""
+    """Open a tmux window or session at WORKTREE_PATH if running inside tmux."""
     if not os.environ.get("TMUX"):
         print(json.dumps({"status": "skipped", "reason": "not_in_tmux"}))
         sys.exit(0)
@@ -247,10 +247,40 @@ def open_terminal(worktree_path: Path, branch: str):
         sys.exit(0)
 
     command = tmux_config.get("command")
+    mode = tmux_config.get("mode", "window")
 
-    window_name = branch.replace("/", "-")
+    if mode not in ("window", "session"):
+        json_output("error", message=f"Invalid tmux mode '{mode}'. Must be 'window' or 'session'.")
 
-    tmux_cmd = ["tmux", "new-window", "-c", str(worktree_path), "-n", window_name]
+    name = branch.replace("/", "-")
+
+    if mode == "session":
+        check = run(["tmux", "has-session", "-t", name])
+        if check.returncode == 0:
+            json_output("error", message=f"tmux session '{name}' already exists.")
+
+        tmux_cmd = ["tmux", "new-session", "-d", "-s", name, "-c", str(worktree_path)]
+        if command:
+            tmux_cmd.append(command)
+
+        result = run(tmux_cmd)
+        if result.returncode != 0:
+            json_output("error", message=f"tmux new-session failed: {result.stderr.strip()}")
+
+        result = run(["tmux", "switch-client", "-t", name])
+        if result.returncode != 0:
+            json_output("error", message=f"tmux switch-client failed: {result.stderr.strip()}")
+
+        print(json.dumps({
+            "status": "opened",
+            "mode": "session",
+            "session_name": name,
+            "command": command or "(default shell)",
+        }))
+        sys.exit(0)
+
+    # mode == "window" (default)
+    tmux_cmd = ["tmux", "new-window", "-c", str(worktree_path), "-n", name]
     if command:
         tmux_cmd.append(command)
 
@@ -260,7 +290,8 @@ def open_terminal(worktree_path: Path, branch: str):
 
     print(json.dumps({
         "status": "opened",
-        "window_name": window_name,
+        "mode": "window",
+        "window_name": name,
         "command": command or "(default shell)",
     }))
     sys.exit(0)

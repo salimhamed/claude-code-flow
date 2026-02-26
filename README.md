@@ -119,13 +119,14 @@ worktree:
     - pre-commit install
 ```
 
-The `tmux` section opens a new tmux window in the worktree directory after creation:
+The `tmux` section opens a new tmux window or session in the worktree directory after creation:
 
 ```yaml
 worktree:
   tmux:
     enabled: true    # opt-in (default: off)
-    command: claude   # command to run in the new window (default: user's shell)
+    mode: window     # "window" (default) or "session"
+    command: claude   # command to run in the new window/session (default: user's shell)
 ```
 
 All sections are optional. Omit any one and it becomes a no-op.
