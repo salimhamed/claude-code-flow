@@ -14,19 +14,51 @@ A Claude Code plugin providing developer workflow utilities to keep in the flow.
 | `/flow:wt-destroy` | Destroy a worktree — close any PR, delete branches, and remove the worktree |
 | `/flow:wt-merge` | Squash-merge the current branch's PR, clean up the worktree, and update main |
 
+All skills are manual-invocation only (`disable-model-invocation: true`) — Claude will not run them autonomously.
+
 ## Installation
 
-### From marketplace
+### Requirements
+
+- **Git** (`git`)
+- **GitHub CLI (`gh`)**
+- **uv** (`uv`)
+
+### From GitHub
+
+Add the marketplace from within Claude Code:
+
+Using HTTPS:
 
 ```
-claude plugin install claude-code-flow
+/plugin marketplace add https://github.com/salimhamed/claude-code-flow.git
+```
+
+Or using SSH:
+
+```
+/plugin marketplace add git@github.com:salimhamed/claude-code-flow.git
+```
+
+Then install the plugin:
+
+```
+/plugin install flow@claude-code-flow
 ```
 
 ### Local development
 
+Clone the repository from your terminal:
+
 ```bash
 git clone https://github.com/salimhamed/claude-code-flow.git
-claude --plugin-dir /path/to/claude-code-flow
+```
+
+Then from within Claude Code, add the local directory and install:
+
+```
+/plugin marketplace add ./claude-code-flow
+/plugin install flow@claude-code-flow
 ```
 
 ## Usage
@@ -121,12 +153,6 @@ Forcefully tears down a worktree — closes any associated PR, deletes local and
 ```
 
 Run from a feature worktree with an open PR. Squash-merges the PR, removes the worktree, updates main, and reports remaining worktree status. Automatically pushes unpushed commits before merging. Blocks on uncommitted changes.
-
-## Requirements
-
-- **Git** — all skills
-- **GitHub CLI (`gh`)** — PR skills (`pr-create`, `pr-desc`, `pr-title`)
-- **`uv`** — worktree skill (`wt-create`)
 
 ## License
 
