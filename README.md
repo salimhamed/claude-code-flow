@@ -14,6 +14,8 @@ A Claude Code plugin providing developer workflow utilities to keep in the flow.
 | `/flow:wt-destroy` | Destroy a worktree — close any PR, delete branches, and remove the worktree |
 | `/flow:wt-merge` | Squash-merge the current branch's PR, clean up the worktree, and update main |
 
+All skills are manual-invocation only (`disable-model-invocation: true`) — Claude will not run them autonomously.
+
 ## Installation
 
 ### Requirements

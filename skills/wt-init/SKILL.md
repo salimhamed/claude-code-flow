@@ -1,4 +1,5 @@
 ---
+disable-model-invocation: true
 description:
   Generate a .worktreerc.yml config file for the current project by scanning for
   environment files, lock files, and dev tooling - use when setting up worktree
