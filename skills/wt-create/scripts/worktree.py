@@ -18,7 +18,7 @@ import yaml
 
 
 def run(cmd: list[str], **kwargs) -> subprocess.CompletedProcess:
-    return subprocess.run(cmd, capture_output=True, text=True, **kwargs)
+    return subprocess.run(cmd, capture_output=True, text=True, stdin=subprocess.DEVNULL, **kwargs)
 
 
 def json_output(status: str, **fields):
@@ -31,19 +31,14 @@ def get_default_branch() -> str:
     if result.returncode == 0:
         return result.stdout.strip().removeprefix("refs/remotes/origin/")
 
-    result = run(["git", "remote", "show", "origin"])
-    if result.returncode != 0:
-        json_output(
-            "error",
-            message="Cannot determine default branch: no remote 'origin' found.",
-        )
-    for line in result.stdout.splitlines():
-        if "HEAD branch:" in line:
-            return line.split(":")[-1].strip()
+    for candidate in ("main", "master"):
+        result = run(["git", "rev-parse", "--verify", f"refs/remotes/origin/{candidate}"])
+        if result.returncode == 0:
+            return candidate
 
     json_output(
         "error",
-        message="Cannot determine default branch from 'git remote show origin'.",
+        message="Cannot determine default branch. Run 'git remote set-head origin --auto' and retry.",
     )
 
 
@@ -109,8 +104,10 @@ def create(branch_name: str, parent_dir: Path | None):
             message=f"Failed to fetch origin/{default_branch}. Check your network connection.",
         )
 
-    local_sha = run(["git", "rev-parse", default_branch]).stdout.strip()
-    remote_sha = run(["git", "rev-parse", f"origin/{default_branch}"]).stdout.strip()
+    result = run(["git", "rev-parse", default_branch, f"origin/{default_branch}"])
+    if result.returncode != 0:
+        json_output("error", message=f"Failed to resolve {default_branch} or origin/{default_branch}.")
+    local_sha, remote_sha = result.stdout.strip().splitlines()
     if local_sha != remote_sha:
         json_output("behind_origin", default_branch=default_branch)
 
@@ -122,7 +119,13 @@ def create(branch_name: str, parent_dir: Path | None):
     if worktree_path.exists():
         json_output("error", message=f"Path already exists: {worktree_path}")
 
-    result = run(["git", "worktree", "add", str(worktree_path), "-b", branch_name])
+    branch_check = run(["git", "rev-parse", "--verify", f"refs/heads/{branch_name}"])
+    is_new_branch = branch_check.returncode != 0
+
+    if is_new_branch:
+        result = run(["git", "worktree", "add", str(worktree_path), "-b", branch_name])
+    else:
+        result = run(["git", "worktree", "add", str(worktree_path), branch_name])
     if result.returncode != 0:
         stderr = result.stderr.strip()
         json_output("error", message=f"git worktree add failed: {stderr}")
@@ -131,6 +134,7 @@ def create(branch_name: str, parent_dir: Path | None):
         "success",
         worktree_path=str(worktree_path),
         branch=branch_name,
+        is_new_branch=is_new_branch,
         default_branch=default_branch,
         base_sha=local_sha,
     )

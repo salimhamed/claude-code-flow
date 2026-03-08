@@ -19,14 +19,14 @@ uv run {SKILL_DIR}/scripts/worktree.py create <BRANCH_NAME> [--parent-dir <path>
 
 | Argument        | Required | Description                                                              |
 | --------------- | -------- | ------------------------------------------------------------------------ |
-| `BRANCH_NAME`   | Yes      | Name for the new worktree branch                                         |
+| `BRANCH_NAME`   | Yes      | Branch name (new or existing) for the worktree                           |
 | `--parent-dir`  | No       | Directory in which to create the worktree (default: parent of repo root) |
 
 ### Checks Performed
 
 1. **Git repo detection** — confirms `cwd` is inside a git repository
 2. **Default branch detection** — tries `git symbolic-ref refs/remotes/origin/HEAD`;
-   falls back to `git remote show origin` if the symbolic ref isn't set
+   falls back to checking `refs/remotes/origin/main` then `refs/remotes/origin/master`
 3. **Branch verification** — ensures the current branch is the default branch
 4. **Fetch + freshness check** — fetches `origin/<default>` and compares local
    vs remote SHA; rejects if local is behind
@@ -34,7 +34,9 @@ uv run {SKILL_DIR}/scripts/worktree.py create <BRANCH_NAME> [--parent-dir <path>
    (or the directory given by `--parent-dir`), sanitizing `/` to `-` in the
    branch name (e.g. `feature/auth` becomes `feature-auth`)
 6. **Collision check** — errors if the computed path already exists
-7. **`git worktree add`** — creates the worktree with a new branch (`-b`)
+7. **Branch existence check** — if the branch already exists, uses it as-is;
+   otherwise creates a new branch with `-b`
+8. **`git worktree add`** — creates the worktree
 
 ### JSON Output
 
@@ -47,6 +49,7 @@ The `status` field determines which additional fields are present.
   "status": "success",
   "worktree_path": "/Users/jesse/Code/myproject/feature-auth",
   "branch": "feature/auth",
+  "is_new_branch": true,
   "default_branch": "main",
   "base_sha": "abc1234..."
 }
@@ -54,10 +57,11 @@ The `status` field determines which additional fields are present.
 
 | Field            | Description                                 |
 | ---------------- | ------------------------------------------- |
-| `worktree_path`  | Absolute path to the new worktree directory |
-| `branch`         | Branch name as provided                     |
-| `default_branch` | Detected default branch (e.g. `main`)       |
-| `base_sha`       | Commit SHA the worktree was created from    |
+| `worktree_path`  | Absolute path to the new worktree directory    |
+| `branch`         | Branch name as provided                        |
+| `is_new_branch`  | `true` if newly created, `false` if pre-existing |
+| `default_branch` | Detected default branch (e.g. `main`)          |
+| `base_sha`       | Commit SHA the worktree was created from       |
 
 #### `wrong_branch`
 
@@ -239,4 +243,6 @@ worktree:
 | Hook command not found        | Shell returns exit 127, caught by stop-on-fail logic  |
 | Commands with pipes/redirects | Work via `shell=True`                                 |
 | `sync` on main worktree      | Detected via path comparison, prints message, exit 0  |
+| Existing branch               | Checked out without `-b`; `is_new_branch` is `false`  |
+| Branch checked out elsewhere  | `git worktree add` rejects; error message surfaced     |
 | Not in a git repo             | `get_main_worktree()` raises, caught and reported     |
