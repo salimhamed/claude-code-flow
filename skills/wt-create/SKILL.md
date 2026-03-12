@@ -10,7 +10,6 @@ allowed-tools:
   - Bash(ls *)
   - Bash(pwd)
   - Bash(python *)
-  - Bash(git *)
 ---
 
 # Create Git Worktree
@@ -48,7 +47,8 @@ output format, and error handling.
 
 ## Prerequisites
 
-This skill accepts a **branch name** as the only argument.
+This skill accepts a **branch name** as the only argument. The branch can be
+new (will be created) or existing (will be checked out).
 
 All prerequisite checks (default branch detection, branch verification, and
 freshness against origin) are handled by the `scripts/worktree.py create`
@@ -131,7 +131,7 @@ gracefully.
 
 ```text
 Worktree ready at <full-path>
-Branch: <branch> (based on <default_branch> at <base_sha>)
+Branch: <branch> (<new branch|existing branch> based on <default_branch> at <base_sha>)
 ```
 
 ## Quick Reference
@@ -143,6 +143,7 @@ Branch: <branch> (based on <default_branch> at <base_sha>)
 | Branch name has slashes             | Script sanitizes: replaces `/` with `-` in path    |
 | `.worktreerc.yml`/`.yaml` exists    | Sync matching files and run post-create hooks      |
 | `.worktreerc.yml`/`.yaml` not found | Sync and hooks skip gracefully (exit 0)            |
+| Branch already exists               | Script checks out existing branch instead of `-b`  |
 | Hook command fails                  | Stops immediately, reports which command failed    |
 
 ## Common Mistakes
