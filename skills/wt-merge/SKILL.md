@@ -20,7 +20,7 @@ clean up."
 - **Current branch:** !`git branch --show-current`
 - **Worktrees:** !`git worktree list --porcelain`
 - **Working tree status:** !`git status --porcelain`
-- **Unpushed commits:** !`git rev-list @{u}..HEAD 2>/dev/null || echo NO_UPSTREAM`
+- **Unpushed commits:** !`git rev-list '@{u}..HEAD' 2>/dev/null || echo NO_UPSTREAM`
 - **PR info:** !`gh pr view --json number,url,state,title 2>&1 || echo NO_PR`
 
 ## Decision Flowchart
