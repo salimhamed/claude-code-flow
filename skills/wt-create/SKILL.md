@@ -103,10 +103,9 @@ The script outputs JSON to stdout. Parse the result and handle accordingly:
 
 | `status`        | Meaning                         | Action                                                      |
 | --------------- | ------------------------------- | ----------------------------------------------------------- |
-| `success`       | Worktree created                | Continue to step 2. Use `worktree_path` from the output.    |
-| `wrong_branch`  | Not on the default branch       | Ask user to switch to `default_branch`, then re-run step 1. |
-| `behind_origin` | Default branch is behind origin | Ask user to pull latest changes, then re-run step 1.        |
-| `error`         | Something else went wrong       | Show `message` to the user and stop.                        |
+| `success`       | Worktree created          | Continue to step 2. Use `worktree_path` from the output.    |
+| `wrong_branch`  | Not on the default branch | Ask user to switch to `default_branch`, then re-run step 1. |
+| `error`         | Something else went wrong | Show `message` to the user and stop.                        |
 
 ### 2. Setup Worktree (Sync + Hooks)
 
@@ -139,7 +138,6 @@ Branch: <branch> (<new branch|existing branch> based on <default_branch> at <bas
 | Situation                           | Action                                             |
 | ----------------------------------- | -------------------------------------------------- |
 | Not on default branch               | Script returns `wrong_branch` — ask user to switch |
-| Default branch behind origin        | Script returns `behind_origin` — ask user to pull  |
 | Branch name has slashes             | Script sanitizes: replaces `/` with `-` in path    |
 | `.worktreerc.yml`/`.yaml` exists    | Sync matching files and run post-create hooks      |
 | `.worktreerc.yml`/`.yaml` not found | Sync and hooks skip gracefully (exit 0)            |
@@ -153,16 +151,11 @@ Branch: <branch> (<new branch|existing branch> based on <default_branch> at <bas
 - **Problem:** Worktree diverges from a stale base, not the latest mainline
 - **Fix:** The setup script enforces this — handle `wrong_branch` status
 
-### Not pulling latest changes
-
-- **Problem:** Worktree starts from outdated code, leading to merge conflicts
-- **Fix:** The setup script enforces this — handle `behind_origin` status
-
 ## Red Flags
 
 **Never:**
 
-- Ignore `wrong_branch` or `behind_origin` status from the setup script
+- Ignore `wrong_branch` or `error` status from the setup script
 - Run git commands directly — the script handles all git operations
 - Run `{SKILL_DIR}/scripts/worktree.py sync` with `python` directly — it requires `uv` for
   dependencies

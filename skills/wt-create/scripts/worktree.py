@@ -109,7 +109,13 @@ def create(branch_name: str, parent_dir: Path | None):
         json_output("error", message=f"Failed to resolve {default_branch} or origin/{default_branch}.")
     local_sha, remote_sha = result.stdout.strip().splitlines()
     if local_sha != remote_sha:
-        json_output("behind_origin", default_branch=default_branch)
+        pull = run(["git", "pull", "--ff-only", "origin", default_branch])
+        if pull.returncode != 0:
+            json_output(
+                "error",
+                message=f"Local {default_branch} has diverged from origin/{default_branch}. Resolve manually.",
+            )
+        local_sha = remote_sha
 
     if parent_dir is None:
         parent_dir = repo_root.parent

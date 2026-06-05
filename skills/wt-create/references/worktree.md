@@ -28,8 +28,8 @@ uv run {SKILL_DIR}/scripts/worktree.py create <BRANCH_NAME> [--parent-dir <path>
 2. **Default branch detection** — tries `git symbolic-ref refs/remotes/origin/HEAD`;
    falls back to checking `refs/remotes/origin/main` then `refs/remotes/origin/master`
 3. **Branch verification** — ensures the current branch is the default branch
-4. **Fetch + freshness check** — fetches `origin/<default>` and compares local
-   vs remote SHA; rejects if local is behind
+4. **Fetch + auto-pull** — fetches `origin/<default>` and compares local
+   vs remote SHA; auto-pulls with `--ff-only` if behind (errors if diverged)
 5. **Path computation** — places the worktree in the parent of the repo root
    (or the directory given by `--parent-dir`), sanitizing `/` to `-` in the
    branch name (e.g. `feature/auth` becomes `feature-auth`)
@@ -73,15 +73,6 @@ The `status` field determines which additional fields are present.
 }
 ```
 
-#### `behind_origin`
-
-```json
-{
-  "status": "behind_origin",
-  "default_branch": "main"
-}
-```
-
 #### `error`
 
 ```json
@@ -96,7 +87,7 @@ The `status` field determines which additional fields are present.
 | Code | Meaning                                                       |
 | ---- | ------------------------------------------------------------- |
 | `0`  | `success` — worktree created                                  |
-| `1`  | Any other status (`wrong_branch`, `behind_origin`, `error`)   |
+| `1`  | Any other status (`wrong_branch`, `error`)                    |
 
 ## `setup`
 
