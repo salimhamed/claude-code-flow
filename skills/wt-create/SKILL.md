@@ -141,7 +141,8 @@ Branch: <branch> (<new branch|existing branch> based on <default_branch> at <bas
 | Branch name has slashes             | Script sanitizes: replaces `/` with `-` in path    |
 | `.worktreerc.yml`/`.yaml` exists    | Sync matching files and run post-create hooks      |
 | `.worktreerc.yml`/`.yaml` not found | Sync and hooks skip gracefully (exit 0)            |
-| Branch already exists               | Script checks out existing branch instead of `-b`  |
+| Local branch exists                 | Script checks it out as-is (`tracked_remote: false`) |
+| Only remote branch exists           | Script creates a local tracking branch from `origin/<branch>` (`tracked_remote: true`) |
 | Hook command fails                  | Stops immediately, reports which command failed    |
 
 ## Common Mistakes

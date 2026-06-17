@@ -29,13 +29,23 @@ uv run {SKILL_DIR}/scripts/worktree.py create <BRANCH_NAME> [--parent-dir <path>
    falls back to checking `refs/remotes/origin/main` then `refs/remotes/origin/master`
 3. **Branch verification** — ensures the current branch is the default branch
 4. **Fetch + auto-pull** — fetches `origin/<default>` and compares local
-   vs remote SHA; auto-pulls with `--ff-only` if behind (errors if diverged)
+   vs remote SHA; auto-pulls with `--ff-only` if behind (errors if diverged).
+   Also fetches `origin/<BRANCH_NAME>` (non-fatal — ignored if the branch isn't
+   on origin or the network is down) so the remote ref is current before the
+   existence check below
 5. **Path computation** — places the worktree in the parent of the repo root
    (or the directory given by `--parent-dir`), sanitizing `/` to `-` in the
    branch name (e.g. `feature/auth` becomes `feature-auth`)
 6. **Collision check** — errors if the computed path already exists
-7. **Branch existence check** — if the branch already exists, uses it as-is;
-   otherwise creates a new branch with `-b`
+7. **Branch existence check** — three cases, in priority order:
+   - **Local branch exists** (`refs/heads/<branch>`) → check it out as-is
+     (`is_new_branch: false`, `tracked_remote: false`). Local is preferred even
+     if it has diverged from the remote — the branch is never auto-reset.
+   - **Only the remote branch exists** (`refs/remotes/origin/<branch>`) →
+     create a local tracking branch from it via `--track -b`
+     (`is_new_branch: false`, `tracked_remote: true`)
+   - **Neither exists** → create a new branch off the default branch with `-b`
+     (`is_new_branch: true`, `tracked_remote: false`)
 8. **`git worktree add`** — creates the worktree
 
 ### JSON Output
@@ -50,6 +60,7 @@ The `status` field determines which additional fields are present.
   "worktree_path": "/Users/jesse/Code/myproject/feature-auth",
   "branch": "feature/auth",
   "is_new_branch": true,
+  "tracked_remote": false,
   "default_branch": "main",
   "base_sha": "abc1234..."
 }
@@ -60,6 +71,7 @@ The `status` field determines which additional fields are present.
 | `worktree_path`  | Absolute path to the new worktree directory    |
 | `branch`         | Branch name as provided                        |
 | `is_new_branch`  | `true` if newly created, `false` if pre-existing |
+| `tracked_remote` | `true` if a local tracking branch was created from `origin/<branch>` |
 | `default_branch` | Detected default branch (e.g. `main`)          |
 | `base_sha`       | Commit SHA the worktree was created from       |
 
@@ -234,6 +246,8 @@ worktree:
 | Hook command not found        | Shell returns exit 127, caught by stop-on-fail logic  |
 | Commands with pipes/redirects | Work via `shell=True`                                 |
 | `sync` on main worktree      | Detected via path comparison, prints message, exit 0  |
-| Existing branch               | Checked out without `-b`; `is_new_branch` is `false`  |
+| Existing local branch         | Checked out without `-b`; `is_new_branch` is `false`, `tracked_remote` is `false` |
+| Remote-only branch            | Local tracking branch created from `origin/<branch>` via `--track -b`; `tracked_remote` is `true` |
+| Local + remote diverged       | Local branch preferred; never auto-reset to the remote |
 | Branch checked out elsewhere  | `git worktree add` rejects; error message surfaced     |
 | Not in a git repo             | `get_main_worktree()` raises, caught and reported     |

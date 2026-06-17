@@ -117,6 +117,11 @@ def create(branch_name: str, parent_dir: Path | None):
             )
         local_sha = remote_sha
 
+    # Refresh the remote ref for the requested branch so the existence check
+    # below sees its current state. Non-fatal: the branch may not exist on
+    # origin, or we may be offline.
+    run(["git", "fetch", "origin", branch_name, "--quiet"])
+
     if parent_dir is None:
         parent_dir = repo_root.parent
     sanitized = branch_name.replace("/", "-")
@@ -125,13 +130,24 @@ def create(branch_name: str, parent_dir: Path | None):
     if worktree_path.exists():
         json_output("error", message=f"Path already exists: {worktree_path}")
 
-    branch_check = run(["git", "rev-parse", "--verify", f"refs/heads/{branch_name}"])
-    is_new_branch = branch_check.returncode != 0
+    local_exists = run(["git", "rev-parse", "--verify", f"refs/heads/{branch_name}"]).returncode == 0
+    remote_exists = run(["git", "rev-parse", "--verify", f"refs/remotes/origin/{branch_name}"]).returncode == 0
 
-    if is_new_branch:
-        result = run(["git", "worktree", "add", str(worktree_path), "-b", branch_name])
-    else:
+    if local_exists:
+        is_new_branch = False
+        tracked_remote = False
         result = run(["git", "worktree", "add", str(worktree_path), branch_name])
+    elif remote_exists:
+        is_new_branch = False
+        tracked_remote = True
+        result = run([
+            "git", "worktree", "add", "--track",
+            "-b", branch_name, str(worktree_path), f"origin/{branch_name}",
+        ])
+    else:
+        is_new_branch = True
+        tracked_remote = False
+        result = run(["git", "worktree", "add", str(worktree_path), "-b", branch_name])
     if result.returncode != 0:
         stderr = result.stderr.strip()
         json_output("error", message=f"git worktree add failed: {stderr}")
@@ -141,6 +157,7 @@ def create(branch_name: str, parent_dir: Path | None):
         worktree_path=str(worktree_path),
         branch=branch_name,
         is_new_branch=is_new_branch,
+        tracked_remote=tracked_remote,
         default_branch=default_branch,
         base_sha=local_sha,
     )
