@@ -62,7 +62,9 @@ The `status` field determines which additional fields are present.
   "is_new_branch": true,
   "tracked_remote": false,
   "default_branch": "main",
-  "base_sha": "abc1234..."
+  "base_sha": "abc1234...",
+  "head_sha": "abc1234...",
+  "behind_default": 0
 }
 ```
 
@@ -73,7 +75,9 @@ The `status` field determines which additional fields are present.
 | `is_new_branch`  | `true` if newly created, `false` if pre-existing |
 | `tracked_remote` | `true` if a local tracking branch was created from `origin/<branch>` |
 | `default_branch` | Detected default branch (e.g. `main`)          |
-| `base_sha`       | Commit SHA the worktree was created from       |
+| `base_sha`       | `default_branch` tip at creation — the worktree's base only for a new branch |
+| `head_sha`       | Commit the worktree is actually checked out at (equals `base_sha` for a new branch) |
+| `behind_default` | Commits the branch is behind `default_branch` (`0` for a new branch) |
 
 #### `wrong_branch`
 
@@ -187,6 +191,8 @@ uv run {SKILL_DIR}/scripts/worktree.py run-hooks <WORKTREE_PATH>
 2. Reads `post_create` list from `.worktreerc.yml` (or `.worktreerc.yaml`) in the main worktree root
 3. Executes each command sequentially via `subprocess.run(shell=True, cwd=worktree_path)`
    - stdout and stderr flow through to the terminal (no capture)
+   - stdin is `/dev/null`, so a command that prompts for input gets EOF and
+     proceeds instead of hanging the (non-interactive) setup step
    - Stops on first non-zero exit code
 
 ### Output

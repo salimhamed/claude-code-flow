@@ -152,6 +152,15 @@ def create(branch_name: str, parent_dir: Path | None):
         stderr = result.stderr.strip()
         json_output("error", message=f"git worktree add failed: {stderr}")
 
+    head_result = run(["git", "rev-parse", branch_name])
+    head_sha = head_result.stdout.strip() if head_result.returncode == 0 else local_sha
+
+    behind_default = 0
+    if not is_new_branch:
+        behind_result = run(["git", "rev-list", "--count", f"{branch_name}..{default_branch}"])
+        if behind_result.returncode == 0:
+            behind_default = int(behind_result.stdout.strip() or "0")
+
     json_output(
         "success",
         worktree_path=str(worktree_path),
@@ -160,6 +169,8 @@ def create(branch_name: str, parent_dir: Path | None):
         tracked_remote=tracked_remote,
         default_branch=default_branch,
         base_sha=local_sha,
+        head_sha=head_sha,
+        behind_default=behind_default,
     )
 
 
@@ -208,7 +219,9 @@ def _run_post_hooks(main_root: Path, worktree_path: Path):
 
     for command in commands:
         click.echo(f"Running: {command}")
-        result = subprocess.run(command, shell=True, cwd=worktree_path, env=env)
+        result = subprocess.run(
+            command, shell=True, cwd=worktree_path, env=env, stdin=subprocess.DEVNULL
+        )
         if result.returncode != 0:
             click.echo(f"Hook failed (exit {result.returncode}): {command}")
             sys.exit(1)

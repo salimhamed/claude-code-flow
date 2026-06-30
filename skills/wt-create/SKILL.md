@@ -128,9 +128,22 @@ gracefully.
 
 ### 3. Report Location
 
+The worktree's HEAD is `head_sha`, not `base_sha`. `base_sha` is the
+`default_branch` tip and is only the worktree's base for a **new** branch — an
+existing branch is checked out at its own tip. Report accordingly:
+
+For a new branch (`is_new_branch: true`):
+
 ```text
 Worktree ready at <full-path>
-Branch: <branch> (<new branch|existing branch> based on <default_branch> at <base_sha>)
+Branch: <branch> (new branch, based on <default_branch> at <base_sha>)
+```
+
+For an existing branch (`is_new_branch: false`, local or remote):
+
+```text
+Worktree ready at <full-path>
+Branch: <branch> (existing branch at <head_sha>, <behind_default> commits behind <default_branch>)
 ```
 
 ## Quick Reference
