@@ -1,4 +1,5 @@
 ---
+name: wt-init
 disable-model-invocation: true
 description:
   Generate a .worktreerc.yml config file for the current project by scanning for

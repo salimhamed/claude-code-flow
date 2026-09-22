@@ -1,4 +1,5 @@
 ---
+name: pr-desc
 description: Update PR description from current branch context
 disable-model-invocation: true
 allowed-tools:

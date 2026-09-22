@@ -1,4 +1,5 @@
 ---
+name: wt-merge
 description:
   Squash-merge the current branch's PR, clean up the worktree, return to main,
   and report remaining worktree status
