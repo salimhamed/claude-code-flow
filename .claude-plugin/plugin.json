@@ -7,5 +7,5 @@
   },
   "repository": "https://github.com/salimhamed/claude-code-flow",
   "license": "MIT",
-  "keywords": ["git", "workflow", "pr", "worktree"]
+  "keywords": ["git", "workflow", "worktree"]
 }
