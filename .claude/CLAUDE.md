@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Claude Code plugin (`flow`) providing developer workflow utilities: PR creation/updates and git worktree management. Plugin name in `plugin.json` is `flow`, so skills are invoked as `/flow:<skill-name>`.
+Claude Code plugin (`flow`) providing developer workflow utilities: git worktree management. Plugin name in `plugin.json` is `flow`, so skills are invoked as `/flow:<skill-name>`.
 
 ## Architecture
 
@@ -18,10 +18,6 @@ Each skill under `skills/` follows this pattern:
 - `references/` — Documentation consumed by Claude when the skill runs
 
 ### Skill Families
-
-**PR skills** (`pr-create`, `pr-title`, `pr-desc`) share a two-phase pattern:
-1. `gather_context.py` — Collects git/GitHub data (branch, commits, diff, changed files) and outputs structured JSON
-2. Execution script (`create_pr.py`, `update_title.py`, `update_description.py`) — Delegates to `gh` CLI
 
 **Worktree setup skills** (`wt-create`, `wt-init`):
 - `wt-create` uses a Click-based CLI (`scripts/worktree.py`) with PEP 723 inline dependencies, run via `uv run`
@@ -37,17 +33,13 @@ All Python scripts are executed via `uv run` (handles inline dependencies automa
 # Worktree CLI
 uv run skills/wt-create/scripts/worktree.py create <branch>
 uv run skills/wt-create/scripts/worktree.py setup <worktree-path>
-
-# PR context gathering
-python skills/pr-create/scripts/gather_context.py -C .
-python skills/pr-title/scripts/gather_context.py -C .
 ```
 
 ## Requirements
 
 - Python 3.10+
 - Git (all skills)
-- GitHub CLI `gh` (PR skills)
+- GitHub CLI `gh` (wt-merge, wt-destroy)
 - `uv` (worktree skill)
 
 ## Key Conventions
