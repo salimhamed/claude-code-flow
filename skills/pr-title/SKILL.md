@@ -1,4 +1,5 @@
 ---
+name: pr-title
 description: Update PR title from current branch context
 disable-model-invocation: true
 allowed-tools:

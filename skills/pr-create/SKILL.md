@@ -1,4 +1,5 @@
 ---
+name: pr-create
 description: Create a pull request with title and body from branch context
 disable-model-invocation: true
 allowed-tools:

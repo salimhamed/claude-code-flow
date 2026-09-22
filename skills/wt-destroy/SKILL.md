@@ -1,4 +1,5 @@
 ---
+name: wt-destroy
 description:
   Destroy a worktree — close any PR, delete local and remote branches,
   and remove the worktree, discarding all uncommitted changes.
