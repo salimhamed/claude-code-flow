@@ -6,9 +6,6 @@ A Claude Code plugin providing developer workflow utilities to keep in the flow.
 
 | Command | Description |
 | ------- | ----------- |
-| `/flow:pr-create` | Create a pull request with auto-generated title and body from branch context |
-| `/flow:pr-desc` | Update an existing PR's description from current branch context |
-| `/flow:pr-title` | Update an existing PR's title from current branch context |
 | `/flow:wt-create` | Create an isolated git worktree with config syncing and post-create hooks |
 | `/flow:wt-init` | Scan the project and generate a `.worktreerc.yml` with sensible defaults |
 | `/flow:wt-destroy` | Destroy a worktree — close any PR, delete branches, and remove the worktree |
@@ -62,34 +59,6 @@ Then from within Claude Code, add the local directory and install:
 ```
 
 ## Usage
-
-### Create a PR
-
-```
-/flow:pr-create
-```
-
-Gathers branch context (commits, diff, changed files), generates a title and body, then creates the PR via `gh pr create`. Refuses if on the base branch, no commits exist, or a PR already exists.
-
-### Update PR description
-
-```
-/flow:pr-desc
-```
-
-Updates the body of an existing PR based on the current branch context. Accepts optional instructions:
-
-```
-/flow:pr-desc include a ## Usage section showing how to use each skill
-```
-
-### Update PR title
-
-```
-/flow:pr-title
-```
-
-Updates the title of an existing PR based on current branch context.
 
 ### Create a git worktree
 
